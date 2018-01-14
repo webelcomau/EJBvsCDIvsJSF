@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.1" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
+    <context-param>
+        <param-name>javax.faces.PROJECT_STAGE</param-name>
+        <param-value>Development</param-value>
+    </context-param>
+    <servlet>
+        <servlet-name>Faces Servlet</servlet-name>
+        <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Faces Servlet</servlet-name>
+        <url-pattern>/faces/*</url-pattern>
+    </servlet-mapping>
+    <session-config>
+        <session-timeout>
+            30
+        </session-timeout>
+    </session-config>
+    <welcome-file-list>
+        <welcome-file>faces/index.xhtml</welcome-file>
+    </welcome-file-list>
+
+    <!--    
+    <context-param>
+       <param-name>com.sun.faces.numberOfViewsInSession</param-name>
+       <param-value>15</param-value>
+    </context-param>   
+    -->
+
+    <context-param>
+        <param-name>com.sun.faces.numberOfViewsInSession</param-name>
+        <param-value>4</param-value>
+    </context-param>  
+
+    <context-param>
+        <param-name>com.sun.faces.numberOfLogicalViews</param-name>
+        <param-value>4</param-value>
+    </context-param>
+
+    <!-- 2016-11-12 AFAIKT not respected alone for: omnifaces-2.6.6 -->
+    <!--
+    <context-param>
+       <param-name>org.omnifaces.VIEW_SCOPE_MANAGER_MAX_ACTIVE_VIEW_SCOPES</param-name>
+       <param-value>4</param-value>
+    </context-param>   
+    -->
+    
+    <!-- http://showcase.omnifaces.org/cdi/ViewScoped
+    
+    By default, the maximum number of active view scopes is hold in a LRU map in HTTP session 
+    with a default size equal to the first non-null value of the following context parameters:
+
+    - "org.omnifaces.VIEW_SCOPE_MANAGER_MAX_ACTIVE_VIEW_SCOPES" (OmniFaces)
+
+    - "com.sun.faces.numberOfLogicalViews" (Mojarra-specific)
+
+    - "org.apache.myfaces.NUMBER_OF_VIEWS_IN_SESSION" (MyFaces-specific)
+
+    If none of those context parameters are present, then a default size of 20 will be used. 
+    When a view scoped bean is evicted from the LRU map, 
+    then its @PreDestroy will also guaranteed to be invoked.
+
+    This setting has no effect when saveInViewState attribute is set to true.
+    -->
+    
+</web-app>

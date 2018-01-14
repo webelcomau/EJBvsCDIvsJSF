@@ -1,0 +1,8 @@
+.gitattributes export-ignore
+.gitignore export-ignore
+log/ export-ignore
+results/ export-ignore
+build/ export-ignore
+dist/ export-ignore
+nbproject/private/ export-ignore
+

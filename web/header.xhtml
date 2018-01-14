@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition 
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:util="http://xmlns.jcp.org/jsf/composite/util"
+    >
+
+    <p>
+        <em><b>Last accessed:&nbsp;</b> <h:outputText value="#{session.lastAccessedTime}">
+                <f:convertDateTime pattern="yyyy/MM/dd hh:mm:ss" type="date" />
+            </h:outputText>
+        </em>
+    </p>   
+    <p>
+        <em><b>Platform:</b> Java: #{javaUtil.javaVersion};&nbsp; #{facesContext.class.package.implementationTitle}:  #{facesContext.class.package.implementationVersion}; NetBeans: 8.2; Glassfish: 4.1.1 (or Payara41)</em>
+    </p>
+
+    <p>
+        <b>Author:</b> #{author}
+    </p>
+
+    <h:panelGroup rendered="#{not empty beantype}" layout="block">
+        <fieldset>
+            <legend>
+                <b>Description</b>
+            </legend>
+            <em>
+                For comparison of the lifecycle of @Stateful and @Stateless EJBs under @Inject and @EJB into JSF backing beans with various CDI @Named scopes
+                <!--
+                <span style="color:magenta">#{beantype}</span> 
+                -->
+            </em>
+        </fieldset>
+    </h:panelGroup>
+
+    <h:panelGroup rendered="#{showHome or empty showHome}" layout="block" style="background-color: #ddd; text-align: center;border-top: 1px solid silver; border-bottom: 1px solid silver; margin:1ex 0;">
+        <h:link value="Home" outcome="index" />
+    </h:panelGroup>
+
+</ui:composition>

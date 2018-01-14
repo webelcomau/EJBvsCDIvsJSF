@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition 
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    >
+    
+    <!-- FAILS on ui:include: use ui:decorate ! -->
+
+    <ui:param name="author" value="Darren Kelly (Webel IT Australia)"/>
+
+    <ui:param name="info_not_gc" value="@ViewScoped bean CAN NOT be garbage collected afterwards !"/>
+
+    <ui:param name="info_yes_preDestroy" value="@PreDestroy called OK."/>
+
+    <ui:param name="info_not_preDestroy" value="@PreDestroy NOT called!"/>
+
+    <ui:param name="info_yes_gc" value="@ViewScoped bean CAN be garbage collected OK afterwards."/>
+
+    <ui:param name="style_not" value="color:red;"/>
+
+    <ui:param name="style_yes" value="color:green;"/>
+
+    <ui:param name="root" value="#{request.contextPath}/" />
+
+</ui:composition>
+
+<!-- http://stackoverflow.com/questions/6434866/defining-and-reusing-an-el-variable-in-jsf-page     
+xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+
+FAILS on ui:include: use ui:decorate !
+<c:set var="info_not_gc" value="@ViewScoped bean will NOT be garbage collected afterwards !"/>    
+-->
+
