@@ -1,11 +1,8 @@
 package com.webel.jsf;
 
-import com.webel.ejb.StatefulCommon;
-import com.webel.ejb.StatelessCommon;
 import java.util.logging.Logger;
-import javax.ejb.EJB;
 import javax.inject.Named;
-import javax.faces.view.ViewScoped; // CDI-compatible JSF2.2 version
+import javax.faces.view.ViewScoped;
 
 /**
  * Uses JSF2.3 style CDI compatible @Named backing bean.
@@ -14,7 +11,7 @@ import javax.faces.view.ViewScoped; // CDI-compatible JSF2.2 version
  */
 @Named
 @ViewScoped
-public class Jsf23ViewBean extends AbstractViewBean {
+public class Jsf23ViewBean extends AbstractBackingBean {
 
     private static final Logger logger = Logger.getLogger(Jsf23ViewBean.class.getName());
     

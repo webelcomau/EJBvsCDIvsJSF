@@ -9,20 +9,13 @@
     xmlns:util="http://xmlns.jcp.org/jsf/composite/util"
     >
 
-    <!-- DISABLE for held reference tests, not relevant.
-    <fieldset>
-        <legend>
-            Use the @ViewScoped bean to read a simple String variable
-        </legend>
-
-        <h:panelGroup>
-            <h:outputLabel value="Backing variable: newName:" style="font-weight: bold;"/>&nbsp;
-            <h:outputText value="#{viewBean.newName}"/>            
-        </h:panelGroup>
-
-    </fieldset>
-    -->
-
+    <!-- IMPORTANT: For the test case to run (and log) properly the backing bean MUST be used once on page build -->
+    
+    <h:panelGroup>
+        <h:outputLabel value="Backing bean class: " style="font-weight: bold;"/>&nbsp;
+        <h:outputText value="#{viewBean.class.simpleName}"/>            
+    </h:panelGroup>
+    
     <h3>Navigate to the 'done' page using different methods then examine the heap (in NetBeans IDE or VisualVM)</h3>
-
+    
 </ui:composition>

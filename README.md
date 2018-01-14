@@ -2,22 +2,22 @@
 
 *Author: Darren Kelly (Webel IT Australia, https://www.webel.com.au)*
 
-This mini test web app is for demonstration and investigation of the lifecycle of @Stateless and @Stateful EJBs under @EJB and @Inject into @Named "backing beans" of different  CDI scopes within JSF.
+This mini test **NetBeans IDE** web app is for demonstration and investigation of the lifecycle of @Stateless and @Stateful EJBs under @EJB and @Inject into @Named "backing beans" of different  CDI scopes within JSF.
 
-The lifecycle callbacks  @PostConstruct and @PreDestroy - and additionally also  @PostActivate and and @PrePassivate for @Stateful beans - are logged for analysis.
+The lifecycle callbacks  @PostConstruct and @PreDestroy - and additionally also  @PostActivate and @PrePassivate for @Stateful beans - are logged for analysis.
 
-This mini test web app also investigates when or whether @PreDestroy methods are called and whether garbage collection succeeds for various forms of @ViewScoped JavaServer Faces (JSF) beans, which concern is inextricably linked with the lifecycle of any EJBs used by the backing beans. 
+This mini test web app also investigates when or whether @PreDestroy methods are called and whether garbage collection succeeds for various forms of @RequestScoped and @ViewScoped JavaServer Faces (JSF) "backing beans", which concern is inextricably linked with the lifecycle of any EJBs used by the backing beans, and how they are injected.
 
-(See also standalone test project https://github.com/webelcomau/JSFviewScopedNav.)
+(See also separate JSF-only test project https://github.com/webelcomau/JSFviewScopedNav.)
 
-This NetBeans IDE 8.2 project may be deployed to the bundled Glassfish 4.1.1 web app server
+This **NetBeans IDE 8.2** project may be deployed to the bundled Glassfish 4.1.1 web app server
 (or to an additionally installed Payara41 web app server). Download from:
 
 - http://www.netbeans.org (required)
 
 - http://www.payara.fish (optional)
 
-You may have to set your own web application server under Properties > Run.
+You may have to set your own web application server under `Properties > Run`.
 
 
 
@@ -67,15 +67,28 @@ You will need a tool for diagnosing memory use and references to instances of JS
 
 
 
+#### ON SESSION TIMEOUT
+
+Some callbacks are only invoked when the session expires, which may sometimes occur due session time-out (see `WEB/web.xml` to set the timeout value in minutes):
+
+    <session-config>
+      <session-timeout>
+            30
+      </session-timeout>
+    </session-config>
+There is currently no explicit login/logout in this test web app, but you can set this to a very small number like `1` (means 1 minute) to see what happens when a session ends.
+
+
+
 #### ON USE OF OMNIFACES
 
-This test web app compares JSF and CDI bean view scopes with the 3rd-party OmniFaces JSF toolkit view scope:
+This test web app includes also a comparison of CDI-compatible JSF bean view scope with the 3rd-party OmniFaces JSF toolkit view scope:
 
 - A current/recent OmniFaces library is included with the project under `./lib`
 
 - Please visit and read also: http://showcase.omnifaces.org/cdi/ViewScoped
 
-
+  ​
 
 
 #### ON USE OF JSF VIEW SCOPE CONTEXT PARAMETERS
@@ -111,10 +124,6 @@ The folder `./nbproject/private` is NOT distributed with the test web app, so th
 
 
 
-## ***TODO: UPDATE FOLLOWING FOR EJB INVESTIGATION***
-
-
-
 **STEP: run in profiling mode:**
 
 Use the NetBeans built-in Profiler, **DO NOT use JVisualVM** !
@@ -126,28 +135,29 @@ This will run the project in profiling mode (and usually restarts the web app se
 - Under the Profile toolbar button use the pulldown (small down array right of Profile button)
   to choose Enable Multiple Modes then Telemetry (gives an overview) and Objects.
 - Click the settings gear wheel icon (top right).
-  - Choose to Profile Selected classes, then select these 3 classes:
+  - Choose to Profile Selected classes, then select these 7 classes:
 
-    `com.webel.jsf.Jsf20ViewBean`, `com.webel.jsf.Jsf23ViewBean`, `com.webel.jsf.OmniViewBean`
-    Instances for them won't be shown in the Profiler until you choose a matching test page.
+    `com.webel.jsf.Jsf23RequestBean`, `com.webel.jsf.Jsf23ViewBean`, `com.webel.jsf.OmniViewBean`
 
+    `com.webel.ejb.StatefulEjb` `com.webel.ejb.StatefulInject` `com.webel.ejb.StatelessEjb` `com.webel.ejb.StatelessInject`
 
-- Note how there is a rubbish bin icon/button for invoking Garbage Collection.
-
-
+    Instances for them won't be shown in the Profiler until you choose and load a matching test page.
 
 
-#### DIAGNOSING THE VARIOUS JSF @ViewScoped BEANS
+- Note how there is also a rubbish bin icon/button for invoking Garbage Collection.
+
+
+
+
+#### DIAGNOSING THE VARIOUS JSF BEANS
 
 The initial web page is an index to 3 test cases, one for each of the bean forms below:
 
     import javax.faces.bean.ManagedBean;
-    import javax.faces.bean.ViewScoped; // OBSOLETE JSF2.0 style
-    @ManagedBean
-    @ViewScoped
-    public class Jsf20ViewBean extends AbstractViewBean {
-
-
+    import javax.enterprise.context.RequestScoped; // CDI-compatible version
+    @Named
+    @RequestScoped
+    public class Jsf23RequestBean extends AbstractViewBean {
 
     import javax.inject.Named;
     import javax.faces.view.ViewScoped; // CDI-compatible JSF2.3 version
@@ -155,28 +165,27 @@ The initial web page is an index to 3 test cases, one for each of the bean forms
     @ViewScoped
     public class Jsf23ViewBean extends AbstractViewBean {
 
-
-
     import javax.inject.Named;
     import org.omnifaces.cdi.ViewScoped; // 3rd party CDI-compatible
     @Named
     @ViewScoped
     public class OmniViewBean extends AbstractViewBean {
 
-
-Each test page creates (usually) a new @ViewScoped bean when first loaded.
-Of interest is what happens to referenced beans once the view page is left
-(whereby the result depends on the bean type and navigation method used).
+Each test page creates (usually) a new bean when first loaded. Of interest is what happens to referenced beans **and their EJBs** once the page is left (whereby the result depends on the backing bean type and navigation method used).
 
 - Concern1: Is @PreDestroy invoked so there is an opportunity to clean up resources ?
-- Concern2: Can the @ViewScoped bean itself be garbage collected ?
-  - Concern2a: Can the @ViewScoped bean be immediately garbage collected ?
-  - Concern2b: Can the @ViewScoped bean be garbage collected later 
+- Concern2: Can the backing bean itself be garbage collected ?
+  - Concern2a: Can the backing bean be immediately garbage collected ?
+  - Concern2b: Can the backing  bean be garbage collected later 
     (such as when the logical number of view is hit, or the session ends) ?
+- Concern3: Is @PreDestroy invoked on the referenced EJBs (session beans) ?
+  - Concern3a: Can  the session beans be immediately garbage collected ?
+  - Concern2b: Can the session beans be garbage collected later ?
+- <u>Concern4: Does it make a difference whether @Inject or @EJB is used ?</u>
 
 
-**IMPORTANT:** The test web app here is primarily for immediate garbage collection (Concern2a),
-and while it can be used to investigate (Concern2b, later collection) the published test results 
+**IMPORTANT:** The test web app here is primarily for immediate garbage collection (Concern2a, Concern2b),
+and while it can be used to investigate (Concern2b, Concern3b, later collection) the published test results 
 don't address that aspect !
 
 **IMPORTANT:** in order to observe when and/or whether `@PreDestroy` methods are 
@@ -199,12 +208,12 @@ in your profiler at each stage.
 
 Each test web page has hopefully clear instructions.
 
-Each test page (for each different `@ViewScoped` bean type) offers the same
-selection of navigation cases for leaving the view scope and landing at
-a target page done.xhtml (which page does not use any view scoped beans).
+Each test page (for each different backing bean type) offers the same
+selection of navigation cases for leaving the scoped page and landing at
+a target page done.xhtml (which page does not use any scoped backing beans).
 
 Access a desired test page initially from the top-level index page (Home),
-which page likewise does NOT use or create any view scoped beans.
+which page likewise does NOT use or create any scoped backing beans.
 
 There are 3 basic subsets of navigation cases:
 
@@ -227,7 +236,7 @@ which case might be used during facelets development, but is not usually used by
 
 After navigating away from a test page to the target page you may:
 
-- Navigate back to the previous view scoped test page (or another).
+- Navigate back to the previous scoped backing bean test page (or another).
 
 - Navigate back to the top-level home page (index.html).
 
@@ -235,9 +244,9 @@ Again: be aware of diagnostics in both your profiler and server log window at al
 
 
 
-
-
 #### FURTHER READING
+
+- https://stackoverflow.com/questions/8887140/jsf-request-scoped-bean-keeps-recreating-new-stateful-session-beans-on-every-req
 
 Hoping this helps other Enterprise Java enthusiasts with this subtle and important manner,
 

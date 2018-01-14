@@ -12,7 +12,7 @@ import javax.ejb.Stateless;
 public class StatelessCommon extends All {
 
     private static final Logger logger = Logger.getLogger(StatelessCommon.class.getName());
-    
+       
     @Override
     protected Logger myLogger() {return logger;}
     
@@ -21,5 +21,18 @@ public class StatelessCommon extends All {
      */
     public StatelessCommon() {
     }    
+    
+    private int pseudoState = 0;
+    
+    protected void incPseudoState() {
+        pseudoState++;
+    }
+    
+    @Override
+    public void exec() {
+        super.exec();
+        incPseudoState();
+        echo(String.format("pseudoState=%d",pseudoState));
+    }
     
 }

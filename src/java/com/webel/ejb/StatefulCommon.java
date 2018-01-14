@@ -19,13 +19,13 @@ public class StatefulCommon extends All {
     @Override
     protected Logger myLogger() {return logger;}
     
+    
     /**
      * Creates a new instance.
      */
     protected StatefulCommon() {
     }    
     
-
     @PostActivate
     public void postActivate() {
         echo("postActivate");

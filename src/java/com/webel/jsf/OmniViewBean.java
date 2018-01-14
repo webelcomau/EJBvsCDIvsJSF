@@ -11,7 +11,7 @@ import org.omnifaces.cdi.ViewScoped; // 3rd party CDI-compatible
  */
 @Named
 @ViewScoped
-public class OmniViewBean extends AbstractViewBean {
+public class OmniViewBean extends AbstractBackingBean {
 
     private static final Logger logger = Logger.getLogger(OmniViewBean.class.getName());
     

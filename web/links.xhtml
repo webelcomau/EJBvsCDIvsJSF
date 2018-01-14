@@ -12,11 +12,15 @@
 
     <ul class="spaced-list">
         <li>
-            <h:link value="TEST: CDI-friendly&nbsp;&nbsp;@Named @ViewScoped ViewBean" outcome="test_cdi"/>
+            <h:link value="TEST: CDI-friendly&nbsp;&nbsp;@Named @RequestScoped backing bean" outcome="test_request"/>
+        </li>
+        
+        <li>
+            <h:link value="TEST: CDI-friendly&nbsp;&nbsp;@Named @ViewScoped backing bean" outcome="test_cdi"/>
         </li>
 
         <li>
-            <h:link value="TEST: OmniFaces&nbsp;&nbsp;&nbsp;&nbsp;@Named @ViewScoped ViewBean" outcome="test_omni"/>
+            <h:link value="TEST: OmniFaces&nbsp;&nbsp;&nbsp;&nbsp;@Named @ViewScoped backing bean" outcome="test_omni"/>
         </li>
     </ul>
 
