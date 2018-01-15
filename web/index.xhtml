@@ -23,18 +23,8 @@
             <ui:param name="showHome" value="false"/>
         </ui:include>
 
-        <fieldset><legend>Options</legend>        
-
-            <h:form>
-                <h:panelGrid columns="2">
-            <h:outputLabel for="doForceRemoveEjbvalue" value="On @PreDestroy of backing beans, force remove() @Stateful beans injected with @EJB ?"/>
-                <h:selectBooleanCheckbox id="doForceRemoveEjbvalue" value="#{appOptions.doForceRemoveEjb}"/>               
-                </h:panelGrid>
-                    <h:commandButton value="Apply"/>
-            </h:form>
-
-        </fieldset>
-
+        <ui:include src="form_actions_options.xhtml"/>
+        
         <ui:include src="links.xhtml"/>
 
     </h:body>

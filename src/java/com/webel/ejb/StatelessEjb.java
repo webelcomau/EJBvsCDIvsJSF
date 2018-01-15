@@ -1,10 +1,10 @@
 package com.webel.ejb;
 
-import com.webel.all.All;
 import java.util.logging.Logger;
 import javax.ejb.Stateless;
 
 /**
+ * This is a stateless EJB (without explicit scope); Inject this into a backing bean using @EJB.
  * 
  * @author darrenkelly
  */

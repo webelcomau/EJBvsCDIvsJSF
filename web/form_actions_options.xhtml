@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition 
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:form>
+
+        <fieldset><legend>Actions</legend>        
+            <h:commandButton action="#{appOptions.doGC()}" value="Prompt system to Garbage Collect"/>
+            
+        </fieldset>
+
+        <fieldset><legend>Options</legend>        
+
+            <h:panelGrid id="options" columns="3">
+                
+                <h:outputLabel for="doForceRemoveEjb" value="On @PreDestroy of backing beans, force remove() @Stateful beans injected with @EJB ?"/>
+                <h:selectBooleanCheckbox id="doForceRemoveEjb" value="#{appOptions.doForceRemoveEjb}">               
+                    <f:ajax render="options"/>
+                </h:selectBooleanCheckbox>
+                <ui:fragment id="mon_doForceRemoveEjb">
+                    <h:outputText rendered="#{appOptions.doForceRemoveEjb}" value="on" style="color:green;"/>
+                    <h:outputText rendered="#{not appOptions.doForceRemoveEjb}" value="off" style="color:red;"/>
+                </ui:fragment>
+
+                <h:outputLabel for="doForceRemoveInject" value="On @PreDestroy of backing beans, force remove() @Stateful beans injected with @Inject ?"/>
+                <h:selectBooleanCheckbox id="doForceRemoveInject" value="#{appOptions.doForceRemoveInject}">               
+                    <f:ajax render="options"/>
+                </h:selectBooleanCheckbox>
+                <ui:fragment id="mon_doForceRemoveInject">
+                    <h:outputText rendered="#{appOptions.doForceRemoveInject}" value="on" style="color:green;"/>
+                    <h:outputText rendered="#{not appOptions.doForceRemoveInject}" value="off" style="color:red;"/>
+                </ui:fragment>
+                
+            </h:panelGrid>
+            <!--
+            <h:commandButton value="Apply"/>
+            -->
+
+        </fieldset>
+    </h:form>
+
+
+</ui:composition>

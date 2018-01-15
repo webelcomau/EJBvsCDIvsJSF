@@ -9,9 +9,9 @@
         <title>#{title}</title>
     </h:head>
     <h:body>
-        
+
         <ui:decorate template="params.xhtml"/>
-                
+
         <h2>#{title}</h2>
 
         <ui:include src="header.xhtml">
@@ -22,7 +22,7 @@
         <ui:include src="common_upper.xhtml">
             <ui:param name="viewBean" value="#{jsf23SessionBean}"/>
         </ui:include>
-        
+
         <p>
             - <h:outputLink value="#{root}faces/done.xhtml">h:outputLink: GET: done</h:outputLink> 
         </p>
@@ -30,7 +30,7 @@
         <p>
             - <h:link value="h:link: GET: done (no redirect)" outcome="done"/>
         </p>
-        
+
         <p>
             - <h:link value="h:link: GET: done (with redirect)" outcome="done?faces-redirect=true"/>             
         </p>
@@ -45,7 +45,7 @@
                 <p>
                     - <h:commandButton value="h:commandButton: TO 'done' via action method" action="#{jsf23SessionBean.actionDone()}"/>
                 </p>
-                
+
                 <p>
                     - <h:commandButton value="h:commandButton: TO 'done' via action String" action="done"/>
                 </p>
@@ -62,6 +62,12 @@
         <p>
             - <b>Browser page reload.</b>
         </p>
+
+        <h:form>
+            <fieldset><legend>Actions</legend>        
+                <h:commandButton action="#{jsf23SessionBean.endSession()}" value="Force end session"/>            
+            </fieldset>
+        </h:form>
 
     </h:body>
 </html>

@@ -2,6 +2,7 @@ package com.webel.jsf;
 
 import java.util.logging.Logger;
 import javax.enterprise.context.SessionScoped;
+import javax.faces.context.FacesContext;
 import javax.inject.Named;
 
 /**
@@ -25,5 +26,9 @@ public class Jsf23SessionBean extends AbstractBackingBean {
      */
     public Jsf23SessionBean() {
     }
-        
+ 
+    public String endSession() {
+        FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
+        return "/index.xhtml?faces-redirect=true";
+    }    
 }
