@@ -24,6 +24,7 @@ public class Jsf23ViewBean extends AbstractBackingBean {
      * Creates a new instance.
      */
     public Jsf23ViewBean() {
+        super(ViewScoped.class);
     }
         
 }

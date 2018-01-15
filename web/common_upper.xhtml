@@ -13,8 +13,13 @@
     
     <h:panelGroup>
         <h:outputLabel value="Backing bean class: " style="font-weight: bold;"/>&nbsp;
-        <h:outputText value="#{viewBean.class.simpleName}"/>            
+        <h:outputText value="#{backBean.class.simpleName}"/>
+        &nbsp;&nbsp;
+        <h:outputLabel value="Scope class: " style="font-weight: bold;"/>&nbsp;
+        <h:outputText value="#{backBean.scopeClass.name}"/>              
     </h:panelGroup>
+    
+    <hr/>
     
     <h3>Navigate to the 'done' page using different methods then examine the heap (in NetBeans IDE or VisualVM)</h3>
     

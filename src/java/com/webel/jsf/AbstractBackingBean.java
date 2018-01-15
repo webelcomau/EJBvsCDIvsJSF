@@ -4,7 +4,10 @@ import com.webel.all.All;
 import com.webel.ejb.StatefulDepend;
 import com.webel.ejb.StatefulEjb;
 import com.webel.ejb.StatefulInject;
+import com.webel.ejb.StatefulOmniView;
 import com.webel.ejb.StatefulRequest;
+import com.webel.ejb.StatefulSession;
+import com.webel.ejb.StatefulViewView;
 import com.webel.ejb.StatelessEjb;
 import com.webel.ejb.StatelessInject;
 import java.util.logging.Logger;
@@ -22,14 +25,26 @@ abstract public class AbstractBackingBean extends All {
 
     private static final Logger logger = Logger.getLogger(AbstractBackingBean.class.getName());
 
+    private Class scopeClass;
+
     /**
-     * Creates a new instance.
+     * For easy access for diagnostics.
+     * 
+     * @return 
      */
-    public AbstractBackingBean() {
+    public Class getScopeClass() {return scopeClass;}
+    
+    /**
+     * Creates a new instance with the given scope class.
+     */
+    protected AbstractBackingBean(Class scopeClass) {
+        this.scopeClass = scopeClass;
     }
+    
     
     @EJB
     private StatefulEjb statefulEjb;
+    
     
     @Inject
     private StatefulInject statefulInject;
@@ -39,6 +54,15 @@ abstract public class AbstractBackingBean extends All {
 
     @Inject
     private StatefulRequest statefulRequest;
+    
+    @Inject
+    private StatefulViewView statefulViewView;
+    
+    @Inject
+    private StatefulOmniView statefulOmniView;
+
+    @Inject
+    private StatefulSession statefulSession;
     
     @EJB
     private StatelessEjb statelessEjb;
@@ -62,6 +86,9 @@ abstract public class AbstractBackingBean extends All {
         statefulInject.exec();
         statefulDepend.exec();
         statefulRequest.exec();
+        statefulViewView.exec();
+        statefulOmniView.exec();
+        statefulSession.exec();
         
         statelessEjb.exec();
         statelessInject.exec();
@@ -100,26 +127,49 @@ abstract public class AbstractBackingBean extends All {
         // otherwise @PreDestroy only invoked by container on timeout.
         
         if (appOptions.isDoForceRemoveInject()) {
-            echo("DO force remove() on @Inject statefulInject !");            
+            String $f = "DO force remove() on @Inject %s !";
+            
+            echo(String.format($f,"statefulInject"));            
             statefulInject.remove();// Not always needed because "contextual"
-            echo("DO force remove() on @Inject statefulDepend !");            
+            
+            echo(String.format($f,"statefulDepend"));            
             statefulDepend.remove();// Not always needed because "contextual"
-            echo("DO force remove() on @Inject Request !");            
+            
+            echo(String.format($f,"statefulRequest"));            
             statefulRequest.remove();// Not always needed because "contextual"
+            
+            echo(String.format($f,"statefulViewView"));            
+            statefulViewView.remove();// Not always needed because "contextual"
+            
+            echo(String.format($f,"statefulOmniView"));            
+            statefulOmniView.remove();// Not always needed because "contextual"            
+            
+            echo(String.format($f,"statefulSession"));            
+            statefulSession.remove();// Not always needed because "contextual"            
+            
         }
         else {
-            echo("SKIP: DO NOT force remove() on @Inject statefulInject !");        
-            echo("SKIP: DO NOT force remove() on @Inject statefulDepend !");        
-            echo("SKIP: DO NOT force remove() on @Inject statefulRequest !");                    
+            String $f = "SKIP: DO NOT force remove() on @Inject %s !";            
+            echo(String.format($f,"statefulInject"));                        
+            echo(String.format($f,"statefulDepend"));                        
+            echo(String.format($f,"statefulRequest"));                       
+            echo(String.format($f,"statefulViewView"));
+            echo(String.format($f,"statefulOmniView"));
+            echo(String.format($f,"statefulSession"));
         }
         
         if (DO_NULL_EJB_RESOURCES) {            
+            
             echo("force null all EJBs");
+            
             statefulEjb = null;
             
             statefulInject = null;
             statefulDepend = null;
             statefulRequest = null;
+            statefulViewView = null;
+            statefulOmniView = null;
+            statefulSession = null;
 
             statelessEjb = null;
             statelessInject = null;

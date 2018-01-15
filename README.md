@@ -2,13 +2,15 @@
 
 *Author: Darren Kelly (Webel IT Australia, https://www.webel.com.au)*
 
-This mini test **NetBeans IDE** web app is for demonstration and investigation of the lifecycle of @Stateless and @Stateful EJBs under @EJB and @Inject into @Named JSF "backing beans" of different CDI scopes.
+*Thanks also to [GreenSoft Pty Ltd](www.greensoftaustralia.com) for partially sponsoring development of this test web app and investigation.*
+
+This mini test **NetBeans IDE** web app is for investigation of the lifecycle of @Stateless and @Stateful EJBs under @EJB and @Inject into @Named JSF "backing beans" of different CDI-compatible scopes.
 
 The EJB session bean lifecycle callbacks @PostConstruct and @PreDestroy -  and additionally also  @PostActivate and @PrePassivate for @Stateful session beans - are logged for analysis.
 
-This mini test web app also investigates when or whether @PreDestroy methods are called and whether garbage collection succeeds for various forms of JavaServer Faces (JSF) "backing beans" (@RequestScoped,  @ViewScoped, and @SessionScoped), which concern is inextricably linked with the lifecycle of any EJBs used by the backing beans, and how they are injected.
+This mini test web app also investigates when or whether @PreDestroy methods are called and whether garbage collection succeeds for various forms of JavaServer Faces (JSF) "backing beans" (@RequestScoped,  @ViewScoped, and @SessionScoped), which concern is inextricably linked with the lifecycle of any session beans used by the backing beans, and how they are injected (via @EJB or via CDI @Inject).
 
-(See also the separate JSF-only test project https://github.com/webelcomau/JSFviewScopedNav.)
+(See also this separate JSF-only test project https://github.com/webelcomau/JSFviewScopedNav, which was spawned and extended to include examination of the lifecycle of EJB session beans under @Inject vs @EJB.)
 
 This **NetBeans IDE 8.2** project may be deployed to the bundled Glassfish 4.1.1 web app server
 (or to an additionally installed Payara41 web app server). Download from:
@@ -19,9 +21,30 @@ This **NetBeans IDE 8.2** project may be deployed to the bundled Glassfish 4.1.1
 
 You may have to set your own web application server under `Properties > Run`.
 
+### Background to @CDI vs @Inject for session beans
+
+Keep the following from CDI-1.2 ([JSR-346](https://jcp.org/en/jsr/detail?id=346)) in mind at all times (my <u>underlining</u>):
+
+> 'EJB components may be stateful, but are not by nature contextual. References to stateful component instances must be explicitly passed between clients and stateful instances <u>must be explicitly destroyed by the application</u>.
+>
+> This specification enhances the EJB component model with contextual lifecycle management.
+>
+> Any session bean instance obtained via the dependency injection service is a contextual instance. It is bound to a lifecycle context and is available to other objects that execute in that context. Thecontainer automatically creates the instance when it is needed by a client. <u>When the context ends, the container automatically destroys the instance</u>.'
+
+Amongst other things, this test suite is designed to illustrate exactly what this means when working with @Stateful session beans, and what the implications of declaring explicit scope for session beans is, and how they behave differently under injection into a backing bean using @EJB vs @Inject.
+
+Also, from the [JBoss CDI User Guide](https://docs.jboss.org/cdi/learn/userguide/CDI-user-guide.html#_session_beans):
+
+> 'There’s no reason to explicitly declare the scope of a stateless session bean or singleton session bean. […] On the other hand, a stateful session bean may have any scope.
+>
+> Stateful session beans may define a remove method, annotated @Remove, that is used by the application to indicate that an instance should be destroyed. However, for a contextual instance of the bean — an instance under the control of CDI — this method may only be called by the application if the bean has scope @Dependent. For beans with other scopes, the application must let the container destroy the bean.'
+
+The test web app includes some switches to force invocation of `remove()` on stateful session beans whenever the backing bean into which they were injected has its `@PreDestroy` method invoked (see section below on options). By default these should be OFF so you can see the intended behaviour of the container.
+
 
 
 #### MOJARRA JSF IMPLEMENTATION VERSION
+
 
 Currently the web app is for demonstration against the Mojarra 2.x JSF implementation series.
 Use the JSF Mojarra version bundled with NetBeans8.2/Glassfish4.1.1 or install a recent version:
@@ -69,14 +92,14 @@ You will need a tool for diagnosing memory use and references to instances of JS
 
 #### ON SESSION TIMEOUT
 
-Some callbacks are only invoked when the session expires, which may sometimes occur due session time-out (see `WEB/web.xml` to set the timeout value in minutes):
+Some callbacks are only invoked automatically when the session expires, which may sometimes occur due session time-out (see `WEB/web.xml` to set the timeout value in minutes):
 
     <session-config>
       <session-timeout>
             30
       </session-timeout>
     </session-config>
-There is currently no explicit login/logout in this test web app, but you can set this to a very small number like `1` (means 1 minute) to see what happens when a session ends.
+You can set this to a very small number like `1` (means 1 minute) to see what happens when a session ends by expiration. On the test page for @SessionScoped there is also a special button for forcing a JSF session to end.
 
 
 
@@ -135,13 +158,11 @@ This will run the project in profiling mode (and usually restarts the web app se
 - Under the Profile toolbar button use the pulldown (small down array right of Profile button)
   to choose Enable Multiple Modes then Telemetry (gives an overview) and Objects.
 - Click the settings gear wheel icon (top right).
-  - Choose to Profile Selected classes, then select these classes:
-
-    `com.webel.jsf.Jsf23RequestBean`, `com.webel.jsf.Jsf23ViewBean`, `com.webel.jsf.OmniViewBean`
-
-    `com.webel.ejb.StatefulEjb` `com.webel.ejb.StatefulInject` `com.webel.ejb.StatefulDep` `com.webel.ejb.StatefulRequest` `com.webel.ejb.StatelessEjb` `com.webel.ejb.StatelessInject`
-
-    Instances for them won't be shown in the Profiler until you choose and load a matching test page.
+  - Choose to **Profile Selected Classes**, then select these classes:
+    - `com.webel.jsf.Jsf23RequestBean`, `com.webel.jsf.Jsf23ViewBean`, `com.webel.jsf.OmniViewBean`
+    - `com.webel.ejb.StatefulEjb` `com.webel.ejb.StatefulInject` `com.webel.ejb.StatefulDepend` `com.webel.ejb.StatefulRequest` `com.webel.ejb.StatefulViewView` `com.webel.ejb.StatefulOmniView` `com.webel.ejb.StatefulSession`
+    -  `com.webel.ejb.StatelessEjb` `com.webel.ejb.StatelessInject`
+  - Instances for them won't be shown in the Profiler until you choose and load a matching test page.
 
 
 - Note how there is also a rubbish bin icon/button for invoking Garbage Collection.
@@ -151,43 +172,79 @@ This will run the project in profiling mode (and usually restarts the web app se
 
 #### QUICKSTART: Understanding the different EJB session beans
 
-There are 6 different types of EJBs investigated:
+The following different types of EJB session beans are investigated, named to indicate the scope and how they should be injected (for the purposes of this comparative test suite):
 
 ----
 
-    // A stateful EJB without explicit scope; Inject this into a backing bean using @EJB.`
+    // A stateful EJB without explicit scope; 
+    // Inject this into a backing bean using @EJB.`
     @Stateful
     public class StatefulEjb extends StatefulCommon {
 
 ---
 
-    // A stateful EJB without explicit scope; Inject this into a backing bean using @Inject.
+    // A stateful EJB without explicit scope; 
+    // Inject this into a backing bean using @Inject.
     @Stateful
     public class StatefulInject extends StatefulCommon {
 
 ----
-
-    // A stateful EJB with dependent pseudo-scope; Inject this into a backing bean using @Inject.
+    import javax.enterprise.context.Dependent;
+    // A stateful EJB with explicit dependent pseudo-scope; 
+    // Inject this into a backing bean using @Inject.
     @Stateful
     @Dependent
     public class StatefulDepend extends StatefulCommon {
 
 ----
-
-    // A stateful EJB with explicit request scope; Inject this into a backing bean using @Inject.
+    import javax.enterprise.context.RequestScoped;
+    // A stateful EJB with explicit request scope; 
+    // Inject this into a backing bean using @Inject.
     @Stateful
     @RequestScoped
     public class StatefulRequest extends StatefulCommon {
 
 ----
+    import javax.faces.view.ViewScoped;
+    // A stateful EJB with explicit CDI-compatible view scope; 
+    // Inject this into a backing bean using @Inject.
+    //
+    // This is for testing purposes only; it is not suggested here that using view scope
+    // with a stateful session bean is recommended (even though it still appears to work).
+    @Stateful
+    @ViewScoped
+    public class StatefulViewView extends StatefulCommon {
 
-    // A stateless EJB (without explicit scope); Inject this into a backing bean using @EJB.
+----
+    import org.omnifaces.cdi.ViewScoped;
+    // A stateful EJB with explicit OmniFaces view scope; 
+    // Inject this into a backing bean using @Inject.
+    //
+    // This is for testing purposes only; it is not suggested here that using view scope
+    // with a stateful session bean is recommended (even though it still appears to work). 
+    @Stateful
+    @ViewScoped
+    public class StatefulOmniView extends StatefulCommon {
+
+----
+    import javax.enterprise.context.SessionScoped;
+    // A stateful EJB with explicit session scope; 
+    // Inject this into a backing bean using @Inject.
+    @Stateful
+    @SessionScoped
+    public class StatefulSession extends StatefulCommon {
+
+----
+
+    // A stateless EJB (without explicit scope); 
+    // Inject this into a backing bean using @EJB.
     @Stateless
     public class StatelessEjb extends StatelessCommon {
 
 ----
 
-    // A stateless EJB (without explicit scope); Inject this into a backing bean using @Inject.
+    // A stateless EJB (without explicit scope); 
+    // Inject this into a backing bean using @Inject.
     @Stateless
     public class StatelessInject extends StatelessCommon {
 
@@ -196,7 +253,7 @@ There are 6 different types of EJBs investigated:
 These are injected into the JSF backing beans thus:
 
 ```
-@EJB
+@EJB //! For this test
 private StatefulEjb statefulEjb;
 
 @Inject
@@ -208,62 +265,83 @@ private StatefulDepend statefulDepend;
 @Inject
 private StatefulRequest statefulRequest;
 
-@EJB
+@Inject
+private StatefulViewView statefulViewView;
+
+@Inject
+private StatefulOmniView statefulOmniView;
+
+@Inject
+private StatefulSession statefulSession;
+
+
+@EJB //! For this test
 private StatelessEjb statelessEjb;
 
 @Inject
 private StatelessInject statelessInject;
 ```
 
-The exec() method of each EJB is also invoked on @PostConstruct of each backing bean.
+The `exec()` method of each session bean is also invoked on @PostConstruct of each backing bean.
 
 
 
 #### QUICKSTART: Understanding typical output: CASE: @RequestScoped
 
-The following shows typical server log output for a request scoped backing bean. (In this case, unlike with view-scoped, there is no need to navigate away from the page to see the backing bean destruction.)
+The following shows typical server log output for a request-scoped backing bean. (In this case, unlike with view-scoped, there is no need to navigate away from the page to see the backing bean destruction.)
 
 http://localhost:8080/EJBvsCDIvsJSF/faces/test_request.xhtml
 
-`Info:   StatefulEjb      [1515985472188]: postConstruct`
-`Info:   StatefulInject   [1515985472190]: postConstruct`
-`Info:   StatefulDepend   [1515985472190]: postConstruct`
-`Info:   Jsf23RequestBean [1515985472188]: postConstruct`
-`Info:   StatefulEjb      [1515985472188]: exec`
-`Info:   StatefulInject   [1515985472190]: exec`
-`Info:   StatefulDepend   [1515985472190]: exec`
-`Info:   StatefulRequest  [1515985472193]: postConstruct`
-`Info:   StatefulRequest  [1515985472193]: exec`
-`Info:   StatelessEjb     [1515985389205]: exec`
-`Info:   StatelessEjb     [1515985389205]: pseudoState=3`
-`Info:   StatelessInject  [1515985389207]: exec`
-`Info:   StatelessInject  [1515985389207]: pseudoState=3`
-`Info:   Jsf23RequestBean [1515985472188]: preDestroy`
-`Info:   Jsf23RequestBean [1515985472188]: SKIP: DO NOT force remove() on @EJB statefulEjb !`
-`Info:   Jsf23RequestBean [1515985472188]: SKIP: DO NOT force remove() on @Inject statefulInject !`
-`Info:   Jsf23RequestBean [1515985472188]: SKIP: DO NOT force remove() on @Inject statefulDepend !`
-`Info:   Jsf23RequestBean [1515985472188]: SKIP: DO NOT force remove() on @Inject statefulRequest !`
-`Info:   StatefulInject   [1515985472190]: preDestroy`
-`Info:   StatefulDepend   [1515985472190]: preDestroy`
-`Info:   StatefulRequest  [1515985472193]: preDestroy`
+`Info:   StatefulEjb      [1516008751003]: postConstruct`
+`Info:   StatefulInject   [1516008751005]: postConstruct`
+`Info:   StatefulDepend   [1516008751006]: postConstruct`
+`Info:   Jsf23RequestBean [1516008751003]: postConstruct`
+`Info:   StatefulEjb      [1516008751003]: exec`
+`Info:   StatefulInject   [1516008751005]: exec`
+`Info:   StatefulDepend   [1516008751006]: exec`
+`Info:   StatefulRequest  [1516008751009]: postConstruct`
+`Info:   StatefulRequest  [1516008751009]: exec`
+`Info:   StatefulViewView [1516008751011]: postConstruct`
+`Info:   StatefulViewView [1516008751011]: exec`
+`Info:   StatefulOmniView [1516008751014]: postConstruct`
+`Info:   StatefulOmniView [1516008751014]: exec`
+`Info:   StatefulSession  [1516008112530]: exec`
+`Info:   StatelessEjb     [1516008112536]: exec`
+`Info:   StatelessEjb     [1516008112536]: pseudoState=11 [Shows has been invoked many times via pool]`
+`Info:   StatelessInject  [1516008112539]: exec`
+`Info:   StatelessInject  [1516008112539]: pseudoState=11 [Shows has been invoked many times via pool]`
+`Info:   Jsf23RequestBean [1516008751003]: preDestroy`
+`Info:   Jsf23RequestBean [1516008751003]: SKIP: DO NOT force remove() on @EJB statefulEjb !`
+`Info:   Jsf23RequestBean [1516008751003]: SKIP: DO NOT force remove() on @Inject statefulInject !`
+`Info:   Jsf23RequestBean [1516008751003]: SKIP: DO NOT force remove() on @Inject statefulDepend !`
+`Info:   Jsf23RequestBean [1516008751003]: SKIP: DO NOT force remove() on @Inject statefulRequest !`
+`Info:   Jsf23RequestBean [1516008751003]: SKIP: DO NOT force remove() on @Inject statefulViewView !`
+`Info:   Jsf23RequestBean [1516008751003]: SKIP: DO NOT force remove() on @Inject statefulOmniView !`
+`Info:   Jsf23RequestBean [1516008751003]: SKIP: DO NOT force remove() on @Inject statefulSession !`
+`Info:   StatefulInject   [1516008751005]: preDestroy`
+`Info:   StatefulDepend   [1516008751006]: preDestroy`
+`Info:   StatefulRequest  [1516008751009]: preDestroy`
 
 Note that:
 
 - Each bean has an identifier, which is the `Date.time()` milliseconds at the moment of construction; this approach makes it very easy to track each bean and see whether and when it is destroyed (and is independent of proxies).
 - On construction of a backing bean, exec() is invoked on every injected EJB.
 - Stateless EJBs have a `pseudoState`, the number of times `exec()` was invoked, which enables one to see whether the same stateless bean is being offered back via the pool on separate invocations.
-- You can choose whether to explicitly invoke `remove()` on stateful session beans injected via @EJB and/or on stateful session beans injected via @Inject. (See section below about option switches.)
+- You can choose whether to explicitly invoke `remove()` on stateful session beans injected via `@EJB` and/or on stateful session beans injected via `@Inject`. The logged info makes it clear that this has been SKIPPED and NOT done here. (See also section below about option switches.)
 
-In the case above:
+In the particular run above:
 
-- The @PostConstruct was not invoked on the @Stateless EJBs, presumably because they were already created earlier (during a separate page load) and are merely being served back from the pool.
-- The @PreDestroy was automatically invoked on those @Stateful session beans <u>that were injected using @Inject</u>, **but was NOT invoked (yet) for the @Stateful EJB <u>that was injected using @EJB</u>**.
+- The @PostConstruct was not invoked on the `@Stateless` session beans, presumably because they were already created earlier (during a separate page load) and are merely being served back from the pool.
+- Likewise, @PostConstruct was not invoked on the `@SessionScoped ` `@Stateless` session bean, which it seems was already created earlier during the test run session.
+- The @PreDestroy was automatically invoked on those `@Stateful` session beans <u>that were injected using `@Inject`</u> AND have lower or matching scope w.r.t. `@RequestScoped`, **but was NOT invoked (yet) for the @Stateful EJB <u>that was injected using @EJB</u>**.
+- The @PreDestroy was also not invoked (yet) for those `@Stateful` session beans that were injected using `@Inject` but had the higher scopes `@ViewScoped`, `@SessionScoped`.
 
- 
+
+
 
 #### DIAGNOSING EJB RELEASE BY JSF BEAN SCOPE AND/OR IMPLEMENTATION
 
-The initial web page is an index to 4 test cases, one for each of the bean forms below:
+The initial web page is an index to 4 test cases, one for each of the JSF backing bean forms below:
 
 ----
 
@@ -332,6 +410,12 @@ in your profiler at each stage.
 
 
 
+#### SUMMARY OF TYPICAL RESULTS
+
+See the `/results` folder for some simple annotated text files that show some results for typical backing bean cases, and for each of the session bean types, under @Inject and @EJB.
+
+
+
 #### ABOUT THE TEST PAGES AND NAVIGATION CASES IN DETAIL
 
 Each test web page has hopefully clear instructions.
@@ -373,11 +457,39 @@ Again: be aware of diagnostics in both your profiler and server log window at al
 
 #### Special application-wide options
 
-You can choose how the backing beans behave w.r.t. their injected EJBs when @PreDestroy is called on a backing bean:
+You can choose how the backing beans handle their injected session beans when `@PreDestroy` is called on a backing bean. These options are accessible from the home `index.xhtml` page and the target `done.xhtml` page:
 
-- On @PreDestroy of backing beans, force remove() @Stateful beans injected with @EJB ? 
-- On @PreDestroy of backing beans, force remove() @Stateful beans injected with @Inject ? 
+- On `@PreDestroy` of backing beans, force `remove()` `@Stateful` beans injected with `@EJB` ? 
+- On `@PreDestroy` of backing beans, force `remove()` `@Stateful` beans injected with `@Inject` ? 
 
+
+By default these are both initially OFF so you can see the intended behaviour of the container.
+
+Note also, that under CDI 1.2, you are not supposed to explicitly invoke remove():
+
+> ***3.2.1. EJB remove methods of session beans***
+> 
+> 'If a session bean is a stateful session bean:
+>
+> - If the scope is @Dependent, the application may call any EJB remove method of a contextual instance of the session bean.
+> - Otherwise, the application may not directly call any EJB remove method of any contextual instance of the session bean.
+>
+> The session bean is not required to have an EJB remove method in order for the container to destroy it.
+>
+> If the application directly calls an EJB remove method of a contextual instance of a session bean that is a stateful session bean and declares any scope other than `@Dependent`, an `UnsupportedOperationException` is thrown.'
+
+Therefore the 2nd option, for use with @Inject, should not usually  be turned ON anyway.
+
+#### SOME CONCLUSIONS
+
+For `@Stateless` session beans, there is no observable difference (at least for the cases covered by this test web app) whether one injects with `@Inject` or `@EJB` (which is consistent with the idea that `@Stateless` session beans are not contextual).
+
+For `@Stateful` session beans, there is a big difference whether one injects with `@Inject` or `@EJB`, and for CDI `@Inject` injection, it matters crucially whether one declares an explicit scope or not:
+
+- If you inject a `@Stateful` session bean with `@EJB` <u>you MUST invoke `remove()` on it at some stage yourself in the application</u> in order for its `@PreDestroy` (if any) to be invoked.
+- If you inject a `@Stateful` session bean with CDI `@Inject` you "should" either declare an explicit scope and understand how that impacts on the lifecycle of the stateful bean, or understand the implications of the default `@Dependent` pseudo-scope.
+
+Finally, the test case includes and compares both Mojarra `@ViewScoped` and OmniFaces `@ViewScoped` in session beans; although these are not "official" scopes mentioned in the CDI 1.2 spec, they seem to work well in combination with matching `@ViewScoped` JSF backing beans.
 
 
 #### FURTHER READING
@@ -386,7 +498,9 @@ You can choose how the backing beans behave w.r.t. their injected EJBs when @Pre
 
 - https://docs.jboss.org/cdi/learn/userguide/CDI-user-guide.html#_session_beans
 
-- Contexts and DependencyInjection for the Java EE platform (CDI 1.2 JSR 346 Maintenance)
+- Contexts and Dependency Injection for the Java EE platform (CDI 1.2 [JSR 346 Maintenance](https://jcp.org/en/jsr/detail?id=346))
+
+- https://docs.jboss.org/cdi/spec/1.2/cdi-spec-1.2.pdf
 
   ​
 

@@ -1,0 +1,169 @@
+http://localhost:8080/EJBvsCDIvsJSF/faces/test_view_jsf23.xhtml
+
+Backing bean class: Jsf23ViewBean, Scope class: javax.faces.view.ViewScoped
+
+Info:   StatefulEjb      [1516009460851]: postConstruct
+Info:   StatefulInject   [1516009460853]: postConstruct
+Info:   StatefulDepend   [1516009460854]: postConstruct
+Info:   Jsf23ViewBean    [1516009460851]: postConstruct
+Info:   StatefulEjb      [1516009460851]: exec
+Info:   StatefulInject   [1516009460853]: exec
+Info:   StatefulDepend   [1516009460854]: exec
+Info:   StatefulRequest  [1516009460856]: postConstruct
+Info:   StatefulRequest  [1516009460856]: exec
+Info:   StatefulViewView [1516009460857]: postConstruct
+Info:   StatefulViewView [1516009460857]: exec
+Info:   StatefulOmniView [1516009460860]: postConstruct
+Info:   StatefulOmniView [1516009460860]: exec
+Info:   StatefulSession  [1516008112530]: exec
+Info:   StatelessEjb     [1516008112536]: exec
+Info:   StatelessEjb     [1516008112536]: pseudoState=12
+Info:   StatelessInject  [1516008112539]: exec
+Info:   StatelessInject  [1516008112539]: pseudoState=12
+Info:   StatefulRequest  [1516009460856]: preDestroy
+
+Note that the @PostConstruct is NOT invoked again on the already-existent 
+@Stateless session beans - but the exec() is. We can see from the pseudoState 
+counter that we are getting already-used stateless session beans via the pool.
+
+Note that the @PostConstruct is NOT invoked again on the already-existent explicitly 
+@SessionScoped @Stateful session bean - but the exec() is - and @PreDestroy is 
+likewise NOT yet invoked.
+
+Note that the @RequestScoped @Stateful session bean had @PreDestroy automatically invoked
+(and this happens even though @PreDestroy has not been invoked on the backing bean).
+
+
+NEXT: Case1: Leave the page with the h:commandButton with an action method (with Mojarra-2.3 
+GET-related navigation methods don’t unload the view-scoped beans well):
+
+Info:   Jsf23ViewBean    [1516009460851]: actionDone
+Info:   StatefulViewView [1516009460857]: preDestroy
+Info:   Jsf23ViewBean    [1516009460851]: preDestroy
+Info:   Jsf23ViewBean    [1516009460851]: SKIP: DO NOT force remove() on @EJB statefulEjb !
+Info:   Jsf23ViewBean    [1516009460851]: SKIP: DO NOT force remove() on @Inject statefulInject !
+Info:   Jsf23ViewBean    [1516009460851]: SKIP: DO NOT force remove() on @Inject statefulDepend !
+Info:   Jsf23ViewBean    [1516009460851]: SKIP: DO NOT force remove() on @Inject statefulRequest !
+Info:   Jsf23ViewBean    [1516009460851]: SKIP: DO NOT force remove() on @Inject statefulViewView !
+Info:   Jsf23ViewBean    [1516009460851]: SKIP: DO NOT force remove() on @Inject statefulOmniView !
+Info:   Jsf23ViewBean    [1516009460851]: SKIP: DO NOT force remove() on @Inject statefulSession !
+Info:   StatefulOmniView [1516009460860]: preDestroy
+
+Note however that the @Stateful session bean with no explicit scope (class StatefulInject)
+and the @Stateful session bean with explicit @Dependent pseudo-scope (class StatefulDepend)
+DO NOT have their @PreDestroy invoked by the container !
+
+@PreDestroy is also not invoked but the container for the @Stateful session bean
+that was injected with @EJB (class StatefulEjb). This is consistent and expected.
+
+NEXT: Case2: Stay on the page instead with the h:commandButton with an action method with ‘null’ return.
+(To do this you have to load the page view again, and the timestamps will of course be mostly different.)
+
+The sequence then looks like:
+
+Info:   StatefulEjb      [1516009951544]: postConstruct
+Info:   StatefulInject   [1516009951545]: postConstruct
+Info:   StatefulDepend   [1516009951546]: postConstruct
+Info:   Jsf23ViewBean    [1516009951544]: postConstruct
+Info:   StatefulEjb      [1516009951544]: exec
+Info:   StatefulInject   [1516009951545]: exec
+Info:   StatefulDepend   [1516009951546]: exec
+Info:   StatefulRequest  [1516009951549]: postConstruct
+Info:   StatefulRequest  [1516009951549]: exec
+Info:   StatefulViewView [1516009951551]: postConstruct
+Info:   StatefulViewView [1516009951551]: exec
+Info:   StatefulOmniView [1516009951554]: postConstruct
+Info:   StatefulOmniView [1516009951554]: exec
+Info:   StatefulSession  [1516008112530]: exec
+Info:   StatelessEjb     [1516008112536]: exec
+Info:   StatelessEjb     [1516008112536]: pseudoState=13
+Info:   StatelessInject  [1516008112539]: exec
+Info:   StatelessInject  [1516008112539]: pseudoState=13
+Info:   StatefulRequest  [1516009951549]: preDestroy
+
+And on “staying”:
+
+Info:   Jsf23ViewBean    [1516009951544]: actionNull
+
+
+NEXT: Case3: Much as for GET-related navigation, browser reload 
+is BROKEN for @ViewScoped under Mojarra-2.3:
+
+Info:   StatefulViewView [1516009951551]: preDestroy
+Info:   Jsf23ViewBean    [1516009951544]: preDestroy
+Info:   Jsf23ViewBean    [1516009951544]: SKIP: DO NOT force remove() on @EJB statefulEjb !
+Info:   Jsf23ViewBean    [1516009951544]: SKIP: DO NOT force remove() on @Inject statefulInject !
+Info:   Jsf23ViewBean    [1516009951544]: SKIP: DO NOT force remove() on @Inject statefulDepend !
+Info:   Jsf23ViewBean    [1516009951544]: SKIP: DO NOT force remove() on @Inject statefulRequest !
+Info:   Jsf23ViewBean    [1516009951544]: SKIP: DO NOT force remove() on @Inject statefulViewView !
+Info:   Jsf23ViewBean    [1516009951544]: SKIP: DO NOT force remove() on @Inject statefulOmniView !
+Info:   Jsf23ViewBean    [1516009951544]: SKIP: DO NOT force remove() on @Inject statefulSession !
+Info:   StatefulOmniView [1516009951554]: preDestroy
+Info:   StatefulEjb      [1516010057364]: postConstruct
+Info:   StatefulInject   [1516010057365]: postConstruct
+Info:   StatefulDepend   [1516010057367]: postConstruct
+Info:   Jsf23ViewBean    [1516010057363]: postConstruct
+Info:   StatefulEjb      [1516010057364]: exec
+Info:   StatefulInject   [1516010057365]: exec
+Info:   StatefulDepend   [1516010057367]: exec
+Info:   StatefulRequest  [1516010057370]: postConstruct
+Info:   StatefulRequest  [1516010057370]: exec
+Info:   StatefulViewView [1516010057371]: postConstruct
+Info:   StatefulViewView [1516010057371]: exec
+Info:   StatefulOmniView [1516010057374]: postConstruct
+Info:   StatefulOmniView [1516010057374]: exec
+Info:   StatefulSession  [1516008112530]: exec
+Info:   StatelessEjb     [1516008112536]: exec
+Info:   StatelessEjb     [1516008112536]: pseudoState=14
+Info:   StatelessInject  [1516008112539]: exec
+Info:   StatelessInject  [1516008112539]: pseudoState=14
+FATAL:   JSF1073: javax.faces.application.ViewExpiredException caught during processing of RESTORE_VIEW 1 : UIComponent-ClientId=, Message=viewId:/test_view_jsf23.xhtml - View /test_view_jsf23.xhtml could not be restored.
+FATAL:   viewId:/test_view_jsf23.xhtml - View /test_view_jsf23.xhtml could not be restored.
+javax.faces.application.ViewExpiredException: viewId:/test_view_jsf23.xhtml - View /test_view_jsf23.xhtml could not be restored.
+	at com.sun.faces.lifecycle.RestoreViewPhase.execute(RestoreViewPhase.java:218)
+	at com.sun.faces.lifecycle.Phase.doPhase(Phase.java:100)
+	at com.sun.faces.lifecycle.RestoreViewPhase.doPhase(RestoreViewPhase.java:133)
+	at com.sun.faces.lifecycle.LifecycleImpl.execute(LifecycleImpl.java:201)
+	at javax.faces.webapp.FacesServlet.service(FacesServlet.java:670)
+	at org.apache.catalina.core.StandardWrapper.service(StandardWrapper.java:1681)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:344)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:214)
+	at org.glassfish.tyrus.servlet.TyrusServletFilter.doFilter(TyrusServletFilter.java:305)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:256)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:214)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:316)
+	at org.apache.catalina.core.StandardContextValve.__invoke(StandardContextValve.java:160)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java)
+	at org.apache.catalina.core.StandardPipeline.doInvoke(StandardPipeline.java:734)
+	at org.apache.catalina.core.StandardPipeline.invoke(StandardPipeline.java:673)
+	at com.sun.enterprise.web.WebPipeline.invoke(WebPipeline.java:99)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:174)
+	at org.apache.catalina.connector.CoyoteAdapter.doService(CoyoteAdapter.java:416)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:283)
+	at com.sun.enterprise.v3.services.impl.ContainerMapper$HttpHandlerCallable.call(ContainerMapper.java:466)
+	at com.sun.enterprise.v3.services.impl.ContainerMapper.service(ContainerMapper.java:169)
+	at org.glassfish.grizzly.http.server.HttpHandler.runService(HttpHandler.java:206)
+	at org.glassfish.grizzly.http.server.HttpHandler.doHandle(HttpHandler.java:180)
+	at org.glassfish.grizzly.http.server.HttpServerFilter.handleRead(HttpServerFilter.java:235)
+	at org.glassfish.grizzly.filterchain.ExecutorResolver$9.execute(ExecutorResolver.java:119)
+	at org.glassfish.grizzly.filterchain.DefaultFilterChain.executeFilter(DefaultFilterChain.java:284)
+	at org.glassfish.grizzly.filterchain.DefaultFilterChain.executeChainPart(DefaultFilterChain.java:201)
+	at org.glassfish.grizzly.filterchain.DefaultFilterChain.execute(DefaultFilterChain.java:133)
+	at org.glassfish.grizzly.filterchain.DefaultFilterChain.process(DefaultFilterChain.java:112)
+	at org.glassfish.grizzly.ProcessorExecutor.execute(ProcessorExecutor.java:77)
+	at org.glassfish.grizzly.nio.transport.TCPNIOTransport.fireIOEvent(TCPNIOTransport.java:526)
+	at org.glassfish.grizzly.strategies.AbstractIOStrategy.fireIOEvent(AbstractIOStrategy.java:112)
+	at org.glassfish.grizzly.strategies.WorkerThreadIOStrategy.run0(WorkerThreadIOStrategy.java:117)
+	at org.glassfish.grizzly.strategies.WorkerThreadIOStrategy.access$100(WorkerThreadIOStrategy.java:56)
+	at org.glassfish.grizzly.strategies.WorkerThreadIOStrategy$WorkerThreadRunnable.run(WorkerThreadIOStrategy.java:137)
+	at org.glassfish.grizzly.threadpool.AbstractThreadPool$Worker.doWork(AbstractThreadPool.java:591)
+	at org.glassfish.grizzly.threadpool.AbstractThreadPool$Worker.run(AbstractThreadPool.java:571)
+	at java.lang.Thread.run(Thread.java:745)
+
+Info:   StatefulRequest  [1516010057370]: preDestroy
+
+
+
+
+
+

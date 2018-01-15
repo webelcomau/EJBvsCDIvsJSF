@@ -24,6 +24,7 @@ public class OmniViewBean extends AbstractBackingBean {
      * Creates a new instance.
      */
     public OmniViewBean() {
+        super(ViewScoped.class);
     }
         
     

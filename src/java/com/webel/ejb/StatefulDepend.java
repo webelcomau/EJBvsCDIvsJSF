@@ -5,7 +5,7 @@ import javax.ejb.Stateful;
 import javax.enterprise.context.Dependent;
 
 /**
- * This is a stateful EJB with dependent pseudo-scope; Inject this into a backing bean using @Inject.
+ * A stateful EJB with explicit dependent pseudo-scope; Inject this into a backing bean using @Inject.
  * 
  * @author darrenkelly
  */

@@ -4,7 +4,7 @@ import java.util.logging.Logger;
 import javax.ejb.Stateful;
 
 /**
- * This is a stateful EJB without explicit scope; Inject this into a backing bean using @Inject.
+ * A stateful EJB without explicit scope; Inject this into a backing bean using @Inject.
  * 
  * @author darrenkelly
  */

@@ -24,6 +24,7 @@ public class Jsf23RequestBean extends AbstractBackingBean {
      * Creates a new instance.
      */
     public Jsf23RequestBean() {
+        super(RequestScoped.class);
     }
-        
+            
 }

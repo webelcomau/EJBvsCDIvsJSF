@@ -1,0 +1,7 @@
+Info:   Initializing Mojarra 2.3.0 ( 20170310-1214 ..) for context '/EJBvsCDIvsJSF'
+Info:   Loading application [EJBvsCDIvsJSF] at [/EJBvsCDIvsJSF]
+Info:   EJBvsCDIvsJSF was successfully deployed in 5,132 milliseconds.
+Info:   AppOptions       [1516008033790]: postConstruct
+
+
+

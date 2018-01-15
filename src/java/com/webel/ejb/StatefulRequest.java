@@ -5,7 +5,7 @@ import javax.ejb.Stateful;
 import javax.enterprise.context.RequestScoped;
 
 /**
- * This is a stateful EJB with explicit request scope; Inject this into a backing bean using @Inject.
+ * A stateful EJB with explicit request scope; Inject this into a backing bean using @Inject.
  * 
  * @author darrenkelly
  */

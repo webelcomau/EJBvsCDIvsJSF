@@ -25,9 +25,11 @@ public class Jsf23SessionBean extends AbstractBackingBean {
      * Creates a new instance.
      */
     public Jsf23SessionBean() {
+        super(SessionScoped.class);
     }
  
     public String endSession() {
+        echo("Force end session");
         FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
         return "/index.xhtml?faces-redirect=true";
     }    

@@ -16,11 +16,10 @@
 
         <ui:include src="header.xhtml">
             <ui:param name="author" value="#{author}"/>
-            <ui:param name="beantype" value="a JSF2.3 @RequestScoped (javax.enterprise.context.RequestScoped) @Named bean"/>
         </ui:include>
 
         <ui:include src="common_upper.xhtml">
-            <ui:param name="viewBean" value="#{jsf23RequestBean}"/>
+            <ui:param name="backBean" value="#{jsf23RequestBean}"/>
         </ui:include>
         
         <p>
@@ -53,17 +52,14 @@
                 <hr/>
 
                 <p>
-                    - <h:commandButton value="h:commandButton: STAY: action method returns 'null'" action="#{jsf23RequestBean.actionNull()}"/>: creates a new @RequestScoped bean. 
-                    <!--
-                    ? TODO additional @RequestScoped bean created
-                    -->
+                    - <h:commandButton value="h:commandButton: STAY: action method returns 'null'" action="#{jsf23RequestBean.actionNull()}"/>: creates a new @RequestScoped backing bean. 
                 </p>
 
             </h:form>
         </fieldset>
 
         <p>
-            - <b>Browser page reload:</b> creates a new @RequestScoped bean.
+            - <b>Browser page reload:</b> creates a new @RequestScoped backing bean.
         </p>
 
     </h:body>

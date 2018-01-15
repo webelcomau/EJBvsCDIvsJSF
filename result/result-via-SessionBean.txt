@@ -1,0 +1,142 @@
+http://localhost:8080/EJBvsCDIvsJSF/faces/test_session.xhtml
+
+Backing bean class: Jsf23SessionBean, Scope class: javax.enterprise.context.SessionScoped
+
+Example results with a fresh run.
+
+Because a session is created, there is output already on app launch,
+as a result of the Jsf23SessionBean backing bean and its injected 
+session beans being created:
+
+Info:   Loading application [EJBvsCDIvsJSF] at [/EJBvsCDIvsJSF]
+
+Info:   AppOptions       [1516017012352]: postConstruct
+
+Info:   StatefulEjb      [1516017014132]: postConstruct
+Info:   StatefulInject   [1516017014139]: postConstruct
+Info:   StatefulDepend   [1516017014145]: postConstruct
+Info:   Jsf23SessionBean [1516017014131]: postConstruct
+Info:   StatefulEjb      [1516017014132]: exec
+Info:   StatefulInject   [1516017014139]: exec
+Info:   StatefulDepend   [1516017014145]: exec
+Info:   StatefulRequest  [1516017014202]: postConstruct
+Info:   StatefulRequest  [1516017014202]: exec
+Info:   StatefulViewView [1516017014209]: postConstruct
+Info:   StatefulViewView [1516017014209]: exec
+Info:   StatefulOmniView [1516017014237]: postConstruct
+Info:   StatefulOmniView [1516017014237]: exec
+Info:   StatefulSession  [1516017014245]: postConstruct
+Info:   StatefulSession  [1516017014245]: exec
+Info:   StatelessEjb     [1516017014251]: postConstruct
+Info:   StatelessEjb     [1516017014251]: exec
+Info:   StatelessEjb     [1516017014251]: pseudoState=1
+Info:   StatelessInject  [1516017014256]: postConstruct
+Info:   StatelessInject  [1516017014256]: exec
+Info:   StatelessInject  [1516017014256]: pseudoState=1
+Info:   StatefulRequest  [1516017014202]: preDestroy
+
+Then load the session scoped backing bean test page:
+
+http://localhost:8080/EJBvsCDIvsJSF/faces/test_session.xhtml
+
+There is initially nothing additionally logged !
+
+Try navigating away using one of the GET methods;
+there will also be nothing additionally logged.
+
+Access the same session scoped backing bean test page again;
+There is still nothing additionally logged !
+
+What about using the h:commandButton with the navigation action:
+
+Info:   Jsf23SessionBean [1516017014131]: actionDone
+
+But nothing else; everything is just being held in the session.
+
+Access the same session scoped backing bean test page again and
+try the h:commandButton with the null action (stays on the page).
+
+Info:   Jsf23SessionBean [1516017014131]: actionNull
+
+But nothing else; everything is just being held in the session.
+
+Now try ending the session using the special ‘Force end session button’:
+
+Info:   Jsf23SessionBean [1516017014131]: Force end session
+Info:   StatefulViewView [1516017014209]: preDestroy
+Info:   StatefulSession  [1516017014245]: preDestroy
+Info:   Jsf23SessionBean [1516017014131]: preDestroy
+Info:   Jsf23SessionBean [1516017014131]: SKIP: DO NOT force remove() on @EJB statefulEjb !
+Info:   Jsf23SessionBean [1516017014131]: SKIP: DO NOT force remove() on @Inject statefulInject !
+Info:   Jsf23SessionBean [1516017014131]: SKIP: DO NOT force remove() on @Inject statefulDepend !
+Info:   Jsf23SessionBean [1516017014131]: SKIP: DO NOT force remove() on @Inject statefulRequest !
+Info:   Jsf23SessionBean [1516017014131]: SKIP: DO NOT force remove() on @Inject statefulViewView !
+Info:   Jsf23SessionBean [1516017014131]: SKIP: DO NOT force remove() on @Inject statefulOmniView !
+Info:   Jsf23SessionBean [1516017014131]: SKIP: DO NOT force remove() on @Inject statefulSession !
+Info:   StatefulInject   [1516017014139]: preDestroy
+Info:   StatefulDepend   [1516017014145]: preDestroy
+Info:   StatefulOmniView [1516017014237]: preDestroy
+
+Every session bean of every scope that was injected with @Inject gets its @PreDestroy invoked
+automatically. BUT the @Stateful session bean that was injected with @EJB does NOT get its
+@PreDestroy invoked ! This is in exact agreement with the specification for non contextual
+session beans: ‘stateful instances must be explicitly destroyed by the application.’
+
+Note that because the OmniFaces @ViewScoped is implemented differently, the
+@Stateful session bean with OmniFaces @ViewScoped @PreDestroy invoked in a
+slightly different order w.r.t. to the backing bean into which it was injected.
+
+Again, the use of @ViewScoped on @Stateful session beans here is 
+for illustration and testing, it is not necessarily a recommendation.
+
+
+You can create a new session simply by clicking on the link for the @SessionScoped test page:
+
+Info:   StatefulEjb      [1516017571930]: postConstruct
+Info:   StatefulInject   [1516017571933]: postConstruct
+Info:   StatefulDepend   [1516017571934]: postConstruct
+Info:   Jsf23SessionBean [1516017571929]: postConstruct
+Info:   StatefulEjb      [1516017571930]: exec
+Info:   StatefulInject   [1516017571933]: exec
+Info:   StatefulDepend   [1516017571934]: exec
+Info:   StatefulRequest  [1516017571937]: postConstruct
+Info:   StatefulRequest  [1516017571937]: exec
+Info:   StatefulViewView [1516017571939]: postConstruct
+Info:   StatefulViewView [1516017571939]: exec
+Info:   StatefulOmniView [1516017571943]: postConstruct
+Info:   StatefulOmniView [1516017571943]: exec
+Info:   StatefulSession  [1516017571948]: postConstruct
+Info:   StatefulSession  [1516017571948]: exec
+Info:   StatelessEjb     [1516017014251]: exec
+Info:   StatelessEjb     [1516017014251]: pseudoState=2
+Info:   StatelessInject  [1516017014256]: exec
+Info:   StatelessInject  [1516017014256]: pseudoState=2
+Info:   StatefulRequest  [1516017571937]: preDestroy
+
+If you then wait long enough, the @Stateless session beans will have 
+their @PreDestroy methods invoked, the session will time out, the
+@SessionScoped backing bean will have @PreDestroy invoked on it,
+with the @Stateful session beans that were injected using @Inject
+having @PreDestroy invoked on them:
+
+Info:   StatefulViewView [1516017571939]: preDestroy
+Info:   StatefulSession  [1516017571948]: preDestroy
+Info:   Jsf23SessionBean [1516017571929]: preDestroy
+Info:   Jsf23SessionBean [1516017571929]: SKIP: DO NOT force remove() on @EJB statefulEjb !
+Info:   Jsf23SessionBean [1516017571929]: SKIP: DO NOT force remove() on @Inject statefulInject !
+Info:   Jsf23SessionBean [1516017571929]: SKIP: DO NOT force remove() on @Inject statefulDepend !
+Info:   Jsf23SessionBean [1516017571929]: SKIP: DO NOT force remove() on @Inject statefulRequest !
+Info:   Jsf23SessionBean [1516017571929]: SKIP: DO NOT force remove() on @Inject statefulViewView !
+Info:   Jsf23SessionBean [1516017571929]: SKIP: DO NOT force remove() on @Inject statefulOmniView !
+Info:   Jsf23SessionBean [1516017571929]: SKIP: DO NOT force remove() on @Inject statefulSession !
+Info:   StatefulInject   [1516017571933]: preDestroy
+Info:   StatefulDepend   [1516017571934]: preDestroy
+Info:   StatefulOmniView [1516017571943]: preDestroy
+
+
+
+
+
+
+
+

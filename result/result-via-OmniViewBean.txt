@@ -1,0 +1,96 @@
+http://localhost:8080/EJBvsCDIvsJSF/faces/test_view_omni.xhtml
+
+Backing bean class: OmniViewBean, Scope class: org.omnifaces.cdi.ViewScoped
+
+Info:   StatefulEjb      [1516010202348]: postConstruct
+Info:   StatefulInject   [1516010202349]: postConstruct
+Info:   StatefulDepend   [1516010202351]: postConstruct
+Info:   OmniViewBean     [1516010202347]: postConstruct
+Info:   StatefulEjb      [1516010202348]: exec
+Info:   StatefulInject   [1516010202349]: exec
+Info:   StatefulDepend   [1516010202351]: exec
+Info:   StatefulRequest  [1516010202354]: postConstruct
+Info:   StatefulRequest  [1516010202354]: exec
+Info:   StatefulViewView [1516010202356]: postConstruct
+Info:   StatefulViewView [1516010202356]: exec
+Info:   StatefulOmniView [1516010202357]: postConstruct
+Info:   StatefulOmniView [1516010202357]: exec
+Info:   StatefulSession  [1516008112530]: exec
+Info:   StatelessEjb     [1516008112536]: exec
+Info:   StatelessEjb     [1516008112536]: pseudoState=15
+Info:   StatelessInject  [1516008112539]: exec
+Info:   StatelessInject  [1516008112539]: pseudoState=15
+Info:   StatefulRequest  [1516010202354]: preDestroy
+
+Note that the @PostConstruct is NOT invoked again on the already-existent 
+@Stateless session beans - but the exec() is. We can see from the pseudoState 
+counter that we are getting already-used stateless session beans via the pool.
+
+Note that the @PostConstruct is NOT invoked again on the already-existent explicitly 
+@SessionScoped @Stateful session bean - but the exec() is - and @PreDestroy is 
+likewise NOT yet invoked.
+
+Note that the @RequestScoped @Stateful session bean had @PreDestroy automatically invoked
+(and this happens even though @PreDestroy has not been invoked on the backing bean).
+
+
+
+NEXT: Case1: Leave page via any of the GET-related navigation method (all work for OmniFaces, which does unload the view-scoped backing bean):
+
+Info:   StatefulViewView [1516010202356]: preDestroy
+Info:   OmniViewBean     [1516010202347]: preDestroy
+Info:   OmniViewBean     [1516010202347]: SKIP: DO NOT force remove() on @EJB statefulEjb !
+Info:   OmniViewBean     [1516010202347]: SKIP: DO NOT force remove() on @Inject statefulInject !
+Info:   OmniViewBean     [1516010202347]: SKIP: DO NOT force remove() on @Inject statefulDepend !
+Info:   OmniViewBean     [1516010202347]: SKIP: DO NOT force remove() on @Inject statefulRequest !
+Info:   OmniViewBean     [1516010202347]: SKIP: DO NOT force remove() on @Inject statefulViewView !
+Info:   OmniViewBean     [1516010202347]: SKIP: DO NOT force remove() on @Inject statefulOmniView !
+Info:   OmniViewBean     [1516010202347]: SKIP: DO NOT force remove() on @Inject statefulSession !
+Info:   StatefulOmniView [1516010202357]: preDestroy
+
+Note that both the @Stateful session bean with explicit JSF (Mojarra) @ViewScoped and the @Stateful session 
+bean with explicit OmniFaces @ViewScoped have had @PreDestroy invoked (although at slightly different times).
+
+Note again that the @Stateful session bean with no explicit scope (class StatefulInject)
+and the @Stateful session bean with explicit @Dependent pseudo-scope (class StatefulDepend)
+DO NOT have their @PreDestroy invoked by the container !
+
+@PreDestroy is also not invoked but the container for the @Stateful session bean
+that was injected with @EJB (class StatefulEjb). This is consistent and expected.
+
+
+In fact in this case, after waiting a while, the following also occurred automatically:
+
+Info:   StatelessEjb     [1516008112536]: preDestroy
+Info:   StatelessInject  [1516008112539]: preDestroy
+Info:   StatefulViewView [1516010057371]: preDestroy
+Info:   Jsf23ViewBean    [1516010057363]: preDestroy
+Info:   Jsf23ViewBean    [1516010057363]: SKIP: DO NOT force remove() on @EJB statefulEjb !
+Info:   Jsf23ViewBean    [1516010057363]: SKIP: DO NOT force remove() on @Inject statefulInject !
+Info:   Jsf23ViewBean    [1516010057363]: SKIP: DO NOT force remove() on @Inject statefulDepend !
+Info:   Jsf23ViewBean    [1516010057363]: SKIP: DO NOT force remove() on @Inject statefulRequest !
+Info:   Jsf23ViewBean    [1516010057363]: SKIP: DO NOT force remove() on @Inject statefulViewView !
+Info:   Jsf23ViewBean    [1516010057363]: SKIP: DO NOT force remove() on @Inject statefulOmniView !
+Info:   Jsf23ViewBean    [1516010057363]: SKIP: DO NOT force remove() on @Inject statefulSession !
+Info:   StatefulSession  [1516008112530]: preDestroy
+Info:   StatefulOmniView [1516010057374]: preDestroy
+
+The @Stateless session beans have now had @PreDestroy invoked automatically.
+
+And it seems the view has also expired, so @PreDestroy was invoked automatically
+on the various @ViewScoped session beans.
+
+And note how the session has also eventually expired, so the @Stateful 
+@SessionScoped session bean has had @PreDestroy invoked automatically. 
+
+BUT the @Stateful session bean that had no explicit scope 
+and was injected using @EJB HAS STILL NOT BEEN DESTROYED !
+
+
+
+
+
+
+
+
+

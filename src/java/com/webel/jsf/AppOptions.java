@@ -1,5 +1,6 @@
 package com.webel.jsf;
 
+import com.webel.all.All;
 import java.util.logging.Logger;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
@@ -11,7 +12,7 @@ import javax.inject.Named;
  */
 @Named
 @ApplicationScoped
-public class AppOptions extends AbstractBackingBean {
+public class AppOptions extends All {
 
     private static final Logger logger = Logger.getLogger(AppOptions.class.getName());
 
@@ -29,9 +30,10 @@ public class AppOptions extends AbstractBackingBean {
     private boolean doForceRemoveEjb = false;
 
     /**
-     * If true, on @PreDestroy of backing beans, a force remove() will be performed on @Stateful beans that were injected with @EJB.
-     * 
-     * @return 
+     * If true, on @PreDestroy of backing beans, a force remove() will be performed 
+     * on @Stateful beans that were injected with @EJB.
+     *
+     * @return
      */
     public boolean isDoForceRemoveEjb() {
         return doForceRemoveEjb;
@@ -44,9 +46,10 @@ public class AppOptions extends AbstractBackingBean {
     private boolean doForceRemoveInject = false;
 
     /**
-     * If true, on @PreDestroy of backing beans, a force remove() will be performed on @Stateful beans that were injected with @Inject.
-     * 
-     * @return 
+     * If true, on @PreDestroy of backing beans, a force remove() will be performed 
+     * on @Stateful beans that were injected with @Inject.
+     *
+     * @return
      */
     public boolean isDoForceRemoveInject() {
         return doForceRemoveInject;
@@ -55,12 +58,12 @@ public class AppOptions extends AbstractBackingBean {
     public void setDoForceRemoveInject(boolean doForceRemoveInject) {
         this.doForceRemoveInject = doForceRemoveInject;
     }
-    
-    
+
     /**
      * Suggest (only) that System should Garbage Collect.
      */
     public void doGC() {
+        echo("Prompt Garbage Collection");
         System.gc();
     }
 

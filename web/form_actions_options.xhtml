@@ -9,15 +9,20 @@
 
     <h:form>
 
-        <fieldset><legend>Actions</legend>        
-            <h:commandButton action="#{appOptions.doGC()}" value="Prompt system to Garbage Collect"/>
-            
+        <fieldset><legend>Actions</legend>      
+
+            <h:panelGrid id="actions" columns="1">
+
+                <h:commandButton action="#{appOptions.doGC()}" value="Prompt system to Garbage Collect"/>
+
+            </h:panelGrid>
+
         </fieldset>
 
         <fieldset><legend>Options</legend>        
 
             <h:panelGrid id="options" columns="3">
-                
+
                 <h:outputLabel for="doForceRemoveEjb" value="On @PreDestroy of backing beans, force remove() @Stateful beans injected with @EJB ?"/>
                 <h:selectBooleanCheckbox id="doForceRemoveEjb" value="#{appOptions.doForceRemoveEjb}">               
                     <f:ajax render="options"/>
@@ -35,7 +40,7 @@
                     <h:outputText rendered="#{appOptions.doForceRemoveInject}" value="on" style="color:green;"/>
                     <h:outputText rendered="#{not appOptions.doForceRemoveInject}" value="off" style="color:red;"/>
                 </ui:fragment>
-                
+
             </h:panelGrid>
             <!--
             <h:commandButton value="Apply"/>
