@@ -2,16 +2,17 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
     <h:head>
-        <ui:param name="title" value="TEST: Compare held @EJB references by injection type, JSF backing bean scope, variation, and navigation method"/>        
+        <ui:param name="title" value="TEST: Compare held @EJB references by injection type, JSF backing bean scope, implementation, and navigation method"/>
         <title>#{title}</title>
     </h:head>
 
     <h:body>
 
         <ui:decorate template="params.xhtml"/>
-        
+
         <h2>#{title}</h2>
 
         <ui:include src="header.xhtml">
@@ -21,6 +22,18 @@
             -->
             <ui:param name="showHome" value="false"/>
         </ui:include>
+
+        <fieldset><legend>Options</legend>        
+
+            <h:form>
+                <h:panelGrid columns="2">
+            <h:outputLabel for="doForceRemoveEjbvalue" value="On @PreDestroy of backing beans, force remove() @Stateful beans injected with @EJB ?"/>
+                <h:selectBooleanCheckbox id="doForceRemoveEjbvalue" value="#{appOptions.doForceRemoveEjb}"/>               
+                </h:panelGrid>
+                    <h:commandButton value="Apply"/>
+            </h:form>
+
+        </fieldset>
 
         <ui:include src="links.xhtml"/>
 

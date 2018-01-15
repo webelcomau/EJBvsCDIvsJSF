@@ -1,5 +1,6 @@
 package com.webel.jsf;
 
+import com.webel.all.All;
 import com.webel.ejb.StatefulEjb;
 import com.webel.ejb.StatefulInject;
 import com.webel.ejb.StatelessEjb;
@@ -17,15 +18,9 @@ import javax.inject.Inject;
  *
  * @author darrenkelly
  */
-abstract public class AbstractBackingBean implements Serializable {
+abstract public class AbstractBackingBean extends All {
 
     private static final Logger logger = Logger.getLogger(AbstractBackingBean.class.getName());
-
-    abstract protected Logger myLogger();
-
-    protected void echo(String s) {
-        myLogger().log(Level.INFO, "{0}: {1}", new Object[]{this.getClass().getSimpleName(), s});
-    }
 
     /**
      * Creates a new instance.
@@ -44,11 +39,6 @@ abstract public class AbstractBackingBean implements Serializable {
 //        this.newName = newName;
 //    }
     
-    public void reset() {
-        //entities = null;
-        echo("reset()");
-    }
-
     @EJB
     private StatefulEjb statefulEjb;
 
@@ -62,14 +52,15 @@ abstract public class AbstractBackingBean implements Serializable {
     private StatelessInject statelessInject;
 
     @PostConstruct
+    @Override
     public void postConstruct() {
-        echo("postConstruct");
-        myPostConstruct();
+        super.postConstruct();
+        execEJBs();
     }
 
     //abstract protected void myPostConstruct();
     //@Override
-    protected void myPostConstruct() {
+    protected void execEJBs() {
         statefulEjb.exec();
         statefulInject.exec();
         statelessEjb.exec();
@@ -77,25 +68,30 @@ abstract public class AbstractBackingBean implements Serializable {
     }
 
     @PreDestroy
+    @Override
     public void preDestroy() {
-        echo("preDestroy");
+        super.preDestroy();
         myPreDestroy();
     }
 
-    static final private boolean DO_FORCE_EJB_REMOVE = true;
-
     static final private boolean DO_NULL_EJB_RESOURCES = false;
 
+    @Inject private AppOptions appOptions;
+    
     //@Override
     protected void myPreDestroy() {
 
-        // The @Remove remove() MUST be invoked for @PreDestroy to be forced on @Stateful,
-        // otherwise @PreDestroy only invoked by container on timeout.
-        if (DO_FORCE_EJB_REMOVE) {
-            echo("force remove @EJB statefulEjb");
+        // The @Remove remove() MUST be invoked for @PreDestroy to be forced on @Stateful when
+        // when @EJB used for injection, otherwise @PreDestroy only invoked by container on timeout.
+        
+        if (appOptions.isDoForceRemoveEjb()) {
+            echo("DO force remove() on @EJB statefulEjb !");
             statefulEjb.remove(); //! Needed because not "contextual"
             
             //statefulInject.remove();// Not usually needed because "contextual"
+        }
+        else {
+            echo("DO NOT force remove() on @EJB statefulEjb !");        
         }
 
         if (DO_NULL_EJB_RESOURCES) {            
