@@ -141,16 +141,16 @@ abstract public class AbstractBackingBean extends All {
             // than @Dependent, an UnsupportedOperationException is thrown.'
             
             echo(String.format($f,"statefulRequest"));            
-            statefulRequest.remove();// Not always needed because "contextual": BREAKS SPEC !
+            statefulRequest.remove();// Not needed because "contextual": BREAKS SPEC !
             
             echo(String.format($f,"statefulViewView"));            
-            statefulViewView.remove();// Not always needed because "contextual": BREAKS SPEC !
+            statefulViewView.remove();// Not needed because "contextual": BREAKS SPEC !
             
             echo(String.format($f,"statefulOmniView"));            
-            statefulOmniView.remove();// Not always needed because "contextual": BREAKS SPEC !            
+            statefulOmniView.remove();// Not needed because "contextual": BREAKS SPEC !            
             
             echo(String.format($f,"statefulSession"));            
-            statefulSession.remove();// Not always needed because "contextual": BREAKS SPEC !           
+            statefulSession.remove();// Not needed because "contextual": BREAKS SPEC !           
             
         }
         else {
