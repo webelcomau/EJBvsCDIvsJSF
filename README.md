@@ -2,15 +2,15 @@
 
 *Author: Darren Kelly (Webel IT Australia, https://www.webel.com.au)*
 
-*Thanks also to [GreenSoft Pty Ltd](www.greensoftaustralia.com) for partially sponsoring development of this test web app and investigation.*
+*Thanks also to [GreenSoft Pty Ltd](https://www.greensoftaustralia.com) for partially sponsoring development of this test web app and investigation.*
 
-This mini test **NetBeans IDE** web app is for investigation of the lifecycle of @Stateless and @Stateful EJBs under @EJB and @Inject into @Named JSF "backing beans" of different CDI-compatible scopes.
+This mini test **NetBeans IDE** web app is for investigation of the lifecycle of `@Stateless` and `@Stateful` session beans under @EJB and CDI @Inject into @Named JSF "backing beans" of different CDI-compatible scopes.
 
-The EJB session bean lifecycle callbacks @PostConstruct and @PreDestroy -  and additionally also  @PostActivate and @PrePassivate for @Stateful session beans - are logged for analysis.
+The EJB session bean lifecycle callbacks `@PostConstruct` and `@PreDestroy` -  and additionally also  `@PostActivate` and `@PrePassivate` for `@Stateful` session beans - are logged for analysis.
 
-This mini test web app also investigates when or whether @PreDestroy methods are called and whether garbage collection succeeds for various forms of JavaServer Faces (JSF) "backing beans" (@RequestScoped,  @ViewScoped, and @SessionScoped), which concern is inextricably linked with the lifecycle of any session beans used by the backing beans, and how they are injected (via @EJB or via CDI @Inject).
+This mini test web app also investigates when or whether `@PreDestroy` methods are called and whether garbage collection succeeds for various forms of JavaServer Faces (JSF) "backing beans" (`@RequestScoped`,  `@ViewScoped`, and `@SessionScoped`), which concern is inextricably linked with the lifecycle of any session beans used by the backing beans, and how they are injected (via `@EJB` or via CDI `@Inject`).
 
-*(See also this separate JSF-only test project https://github.com/webelcomau/JSFviewScopedNav, which was spawned and extended to include examination of the lifecycle of EJB session beans under @Inject vs @EJB.)*
+*(See also this older JSF-only test project https://github.com/webelcomau/JSFviewScopedNav, which was spawned and extended here to also include examination of the lifecycle of EJB session beans under @Inject vs @EJB.)*
 
 This **NetBeans IDE 8.2** project may be deployed to the bundled GlassFish 4.1.1 web app server
 (or to an additionally installed Payara41 web app server, or newer GlassFish). Download from:
@@ -23,15 +23,15 @@ You may set your own web application server under `Properties > Run`.
 
 ### Background to @CDI vs @Inject for session beans
 
-Keep the following from CDI-1.2 ([JSR-346](https://jcp.org/en/jsr/detail?id=346)) in mind at all times (my <u>underlining</u>):
+Keep the following from [CDI-2.0 (JSR-365)](http://docs.jboss.org/cdi/spec/2.0/cdi-spec.html#_relationship_to_the_java_ee_platform_specification) in mind at all times (my <u>underlining</u>):
 
 > 'EJB components may be stateful, but are not by nature contextual. References to stateful component instances must be explicitly passed between clients and stateful instances <u>must be explicitly destroyed by the application</u>.
 >
 > This specification enhances the EJB component model with contextual lifecycle management.
 >
-> Any session bean instance obtained via the dependency injection service is a contextual instance. It is bound to a lifecycle context and is available to other objects that execute in that context. Thecontainer automatically creates the instance when it is needed by a client. <u>When the context ends, the container automatically destroys the instance</u>.'
+> Any session bean instance obtained via the dependency injection service is a contextual instance. It is bound to a lifecycle context and is available to other objects that execute in that context. The container automatically creates the instance when it is needed by a client. <u>When the context ends, the container automatically destroys the instance</u>.'
 
-Amongst other things, this test suite is designed to illustrate exactly what this means when working with @Stateful session beans, and what the implications of declaring explicit scope for session beans is, and how they behave differently under injection into a backing bean using @EJB vs @Inject.
+Amongst other things, this test suite is designed to illustrate exactly what this means when working with `@Stateful` session beans, and what the implications of declaring explicit scope for session beans is, and how they behave differently under injection into a backing bean using `@EJB` vs `@Inject`.
 
 Also, from the [JBoss CDI User Guide](https://docs.jboss.org/cdi/learn/userguide/CDI-user-guide.html#_session_beans):
 
@@ -41,10 +41,18 @@ Also, from the [JBoss CDI User Guide](https://docs.jboss.org/cdi/learn/userguide
 
 The test web app includes some switches to force invocation of `remove()` on stateful session beans whenever the backing bean into which they were injected has its `@PreDestroy` method invoked (see section below on options). By default these should be OFF so you can see the intended behaviour of the container.
 
+#### **THE WELD IMPLEMENTATION VERSION**
+
+The WELD CDI implementation version will depend initially on your GlassFish (or Payara install):
+
+- GlassFish-4.1.1 has WELD 2.2.13.Final **[CDI 1.2]**
+- GlassFish-5 has WELD 3.0.0 (Final) **[CDI 2.0]**
+- Payara41 (Payara 163 Full) has WELD 2.3.5 (Final)
+
+(Unfortunately, upgrading to latest in WELD in GlassFish-4.1.1 is tricky because of recent dependencies.)
 
 
 #### MOJARRA JSF IMPLEMENTATION VERSION
-
 
 Currently the web app is for demonstration against the Mojarra 2.x JSF implementation series.
 Use the JSF Mojarra version bundled with NetBeans8.2/Glassfish4.1.1 or install a recent version:
@@ -64,8 +72,7 @@ To install by hand, stop your web app server and copy the Mojarra JAR to:
 Then restart your server:
 
 - The test web app interrogates the Mojarra version live and displays it in the header of each web page.
-
-
+  ​
 
 
 #### JAVA VERSION
@@ -84,7 +91,7 @@ You will need a tool for diagnosing memory use and references to instances of JS
 - You can use the Profiler within NetBeans IDE.
 
 - **2017-12-05 DO NOT use JVisualVM !** It gives incorrect results. When attached to GlassFish/Payara
-  it gives references still held (even after @PreDestroy called) by a field sessionListeners of type 
+  it gives references still held (even after `@PreDestroy` is called) by a field sessionListeners of type 
   `com.sun.web.server.WebContainerListener` within `ContainerBase$ContainerBackgroundProcessor`, and they won't GC !  See [this forum posting](https://stackoverflow.com/questions/40569971/jsf-mojarra-vs-omnifaces-viewscoped-predestroy-called-but-bean-cant-be-gar).
 
 
@@ -99,13 +106,14 @@ Some callbacks are only invoked automatically when the session expires, which ma
             30
       </session-timeout>
     </session-config>
-You can set this to a very small number like `1` (means 1 minute) to see what happens when a session ends by expiration. On the test page for @SessionScoped there is also a special button for forcing a JSF session to end.
+- You can set this to a very small number like `1` (means 1 minute) to see what happens when a session ends by natural expiration. 
+- On the test page for @SessionScoped there is also a special button for forcing a JSF session to end.
 
 
 
 #### ON USE OF OMNIFACES
 
-This test web app includes also a comparison of CDI-compatible JSF bean view scope with the 3rd-party OmniFaces JSF toolkit view scope:
+This test web app includes also a comparison of CDI-compatible JSF  view scope with the 3rd-party OmniFaces JSF toolkit view scope:
 
 - A current/recent OmniFaces library is included with the project under `./lib`
 
@@ -135,9 +143,9 @@ The `javax.faces.STATE_SAVING_METHOD` defaults to 'server'.
 
 - Under Libraries set the Java Platform to JDK1.8 (if available), otherwise JDK1.7.
 
-- Under Run set the server to Glassfish4.1.1 or Payara41 (if installed).
+- Under Run set the server to Glassfish4.1.1 (or Payara41 or GlassFish5 if installed).
 
-Be sure to check that you choose a server with the desired Mojarra version installed (see above).
+The choice of server may also affect the  JSF Mojarra version and WELD CDI version (see above).
 
 The folder `./nbproject/private` is NOT distributed with the test web app, so these settings are local.
 
@@ -176,83 +184,101 @@ The following different types of EJB session beans are investigated, named to in
 
 ----
 
-    // A stateful EJB without explicit scope; 
-    // Inject this into a backing bean using @EJB.`
-    @Stateful
-    public class StatefulEjb extends StatefulCommon {
+```java
+// A stateful EJB without explicit scope; 
+// Inject this into a backing bean using @EJB.`
+@Stateful
+public class StatefulEjb extends StatefulCommon {
+```
 
 ---
 
-    // A stateful EJB without explicit scope; 
-    // Inject this into a backing bean using @Inject.
-    @Stateful
-    public class StatefulInject extends StatefulCommon {
+```java
+// A stateful EJB without explicit scope; 
+// Inject this into a backing bean using @Inject.
+@Stateful
+public class StatefulInject extends StatefulCommon {
+```
 
 ----
-    import javax.enterprise.context.Dependent;
-    // A stateful EJB with explicit dependent pseudo-scope; 
-    // Inject this into a backing bean using @Inject.
-    @Stateful
-    @Dependent
-    public class StatefulDepend extends StatefulCommon {
+```java
+import javax.enterprise.context.Dependent;
+// A stateful EJB with explicit dependent pseudo-scope; 
+// Inject this into a backing bean using @Inject.
+@Stateful
+@Dependent
+public class StatefulDepend extends StatefulCommon {
+```
 
 ----
-    import javax.enterprise.context.RequestScoped;
-    // A stateful EJB with explicit request scope; 
-    // Inject this into a backing bean using @Inject.
-    @Stateful
-    @RequestScoped
-    public class StatefulRequest extends StatefulCommon {
+```java
+import javax.enterprise.context.RequestScoped;
+// A stateful EJB with explicit request scope; 
+// Inject this into a backing bean using @Inject.
+@Stateful
+@RequestScoped
+public class StatefulRequest extends StatefulCommon {
+```
 
 ----
-    import javax.faces.view.ViewScoped;
-    // A stateful EJB with explicit CDI-compatible view scope; 
-    // Inject this into a backing bean using @Inject.
-    //
-    // This is for testing purposes only; it is not suggested here that using view scope
-    // with a stateful session bean is recommended (even though it still appears to work).
-    @Stateful
-    @ViewScoped
-    public class StatefulViewView extends StatefulCommon {
+```java
+import javax.faces.view.ViewScoped;
+// A stateful EJB with explicit CDI-compatible view scope; 
+// Inject this into a backing bean using @Inject.
+//
+// This is for testing purposes only; it is not suggested here that using view scope
+// with a stateful session bean is recommended (even though it still appears to work).
+@Stateful
+@ViewScoped
+public class StatefulViewView extends StatefulCommon {
+```
 
 ----
-    import org.omnifaces.cdi.ViewScoped;
-    // A stateful EJB with explicit OmniFaces view scope; 
-    // Inject this into a backing bean using @Inject.
-    //
-    // This is for testing purposes only; it is not suggested here that using view scope
-    // with a stateful session bean is recommended (even though it still appears to work). 
-    @Stateful
-    @ViewScoped
-    public class StatefulOmniView extends StatefulCommon {
+```java
+import org.omnifaces.cdi.ViewScoped;
+// A stateful EJB with explicit OmniFaces view scope; 
+// Inject this into a backing bean using @Inject.
+//
+// This is for testing purposes only; it is not suggested here that using view scope
+// with a stateful session bean is recommended (even though it still appears to work). 
+@Stateful
+@ViewScoped
+public class StatefulOmniView extends StatefulCommon {
+```
 
 ----
-    import javax.enterprise.context.SessionScoped;
-    // A stateful EJB with explicit session scope; 
-    // Inject this into a backing bean using @Inject.
-    @Stateful
-    @SessionScoped
-    public class StatefulSession extends StatefulCommon {
-
-----
-
-    // A stateless EJB (without explicit scope); 
-    // Inject this into a backing bean using @EJB.
-    @Stateless
-    public class StatelessEjb extends StatelessCommon {
+```java
+import javax.enterprise.context.SessionScoped;
+// A stateful EJB with explicit session scope; 
+// Inject this into a backing bean using @Inject.
+@Stateful
+@SessionScoped
+public class StatefulSession extends StatefulCommon {
+```
 
 ----
 
-    // A stateless EJB (without explicit scope); 
-    // Inject this into a backing bean using @Inject.
-    @Stateless
-    public class StatelessInject extends StatelessCommon {
+```java
+// A stateless EJB (without explicit scope); 
+// Inject this into a backing bean using @EJB.
+@Stateless
+public class StatelessEjb extends StatelessCommon {
+```
+
+----
+
+```java
+// A stateless EJB (without explicit scope); 
+// Inject this into a backing bean using @Inject.
+@Stateless
+public class StatelessInject extends StatelessCommon {
+```
 
 ----
 
 These are injected into the JSF backing beans thus:
 
-```
+```java
 @EJB //! For this test
 private StatefulEjb statefulEjb;
 
@@ -347,36 +373,44 @@ The initial web page is an index to 4 test cases, one for each of the JSF backin
 
 ----
 
-    import javax.inject.Named;
-    import javax.enterprise.context.RequestScoped; // CDI-compatible version
-    @Named
-    @RequestScoped
-    public class Jsf23RequestBean extends AbstractViewBean {
+```java
+import javax.inject.Named;
+import javax.enterprise.context.RequestScoped; // CDI-compatible version
+@Named
+@RequestScoped
+public class Jsf23RequestBean extends AbstractViewBean {
+```
 
 ----
 
-    import javax.inject.Named;
-    import javax.faces.view.ViewScoped; // CDI-compatible JSF2.3 version
-    @Named
-    @ViewScoped
-    public class Jsf23ViewBean extends AbstractViewBean {
+```java
+import javax.inject.Named;
+import javax.faces.view.ViewScoped; // CDI-compatible JSF2.3 version
+@Named
+@ViewScoped
+public class Jsf23ViewBean extends AbstractViewBean {
+```
 
 ----
 
 
-    import javax.inject.Named;
-    import org.omnifaces.cdi.ViewScoped; // 3rd party CDI-compatible
-    @Named
-    @ViewScoped
-    public class OmniViewBean extends AbstractViewBean {
+```java
+import javax.inject.Named;
+import org.omnifaces.cdi.ViewScoped; // 3rd party CDI-compatible
+@Named
+@ViewScoped
+public class OmniViewBean extends AbstractViewBean {
+```
 
 ----
 
-    import javax.inject.Named;
-    import javax.enterprise.context.SessionScoped; // CDI-compatible version
-    @Named
-    @SessionScoped
-    public class Jsf23SessionBean extends AbstractViewBean {
+```java
+import javax.inject.Named;
+import javax.enterprise.context.SessionScoped; // CDI-compatible version
+@Named
+@SessionScoped
+public class Jsf23SessionBean extends AbstractViewBean {
+```
 
 ----
 
@@ -521,14 +555,14 @@ The `@Stateful` session bean with explicit `@RequestScoped` had `@PreDestroy` in
 
 Note that none of the `@Stateful` session beans with higher scope (view-scoped or session-scoped) had `@PreDestroy` invoked.
 
-The `@Stateful` session bean with no explicit scope and injected via `@EJB` did NOT automatically have `@PreDestroy` invoked by the container ! This is consistent with CDI-1.2 (JSR-346) which states:
+The `@Stateful` session bean with no explicit scope and injected via `@EJB` did NOT automatically have `@PreDestroy` invoked by the container ! This is consistent with [CDI-2.0 (JSR-365)](http://docs.jboss.org/cdi/spec/2.0/cdi-spec.html#_relationship_to_the_java_ee_platform_specification), which states:
 
 >   'EJB components may be stateful, but are not by nature contextual. 
 >    References to stateful component instances must be explicitly passed between 
 >    clients and stateful instances must be explicitly destroyed by the application.’
 >
 
-By contrast:
+By contrast (if an explicit or implicit scope is used in combination with CDI @Inject):
 
 >  ‘Any session bean instance obtained via the dependency injection service is a contextual instance.
 >  It is bound to a lifecycle context and is available to other objects that execute in that context. 
@@ -688,7 +722,7 @@ Info:   Jsf23ViewBean    [1516009951544]: actionNull
 
 
 
-**NEXT: Case3:** Much as for GET-related navigation, <u>browser reload is BROKEN for @ViewScoped under Mojarra-2.3, the @ViewScoped backing bean is not released for garbage collection</u>, and most of the session beans are also held. RESULTS OMITTED
+**NEXT: Case3:** Much as for GET-related navigation, **browser reload is BROKEN for @ViewScoped under Mojarra-2.3**, the @ViewScoped backing bean is not released for garbage collection, and most of the session beans are also held. RESULTS OMITTED.
 
 
 
@@ -718,8 +752,6 @@ Info:   StatelessEjb     [1516008112536]: pseudoState=15
 Info:   StatelessInject  [1516008112539]: exec
 Info:   StatelessInject  [1516008112539]: pseudoState=15
 Info:   StatefulRequest  [1516010202354]: preDestroy
-
-
 ```
 
 Note that the `@PostConstruct` is NOT invoked again on the already-existent `@Stateless` session beans - but the `exec()` is. We can see from the `pseudoState` counter that we are getting already-used stateless session beans via the pool.
@@ -911,7 +943,7 @@ Info:   StatefulDepend   [1516017571934]: preDestroy
 Info:   StatefulOmniView [1516017571943]: preDestroy
 ```
 
-The CLAIMED WELD BUG under `@Inject`  of `@Dependent` `@Stateful` session beans into `@ViewScoped` backing beans does not seem to happen with either `@RequestScoped` or `@SessionScoped` backing beans, and they are fully released and can be garbage collected.
+The [CLAIMED WELD "BUG"](https://issues.jboss.org/browse/WELD-2454) under `@Inject`  of `@Dependent` `@Stateful` session beans into `@ViewScoped` backing beans does not seem to happen with either `@RequestScoped` or `@SessionScoped` backing beans, and they are fully released and can be garbage collected.
 
 
 
@@ -992,14 +1024,17 @@ Finally, the test case includes and compares both Mojarra `@ViewScoped` and Omni
 
 #### FURTHER READING
 
-- https://stackoverflow.com/questions/8887140/jsf-request-scoped-bean-keeps-recreating-new-stateful-session-beans-on-every-req
 - https://docs.jboss.org/cdi/learn/userguide/CDI-user-guide.html#_session_beans
-- OLDER: Contexts and Dependency Injection for the Java EE platform (CDI 1.2 [JSR 346 Maintenance](https://jcp.org/en/jsr/detail?id=346))
-- OLDER: https://docs.jboss.org/cdi/spec/1.2/cdi-spec-1.2.pdf
 - JSR 365: Contexts and Dependency Injection for Java 2.0 (CDI 2.0) http://docs.jboss.org/cdi/spec/2.0/cdi-spec.html
 - http://weld.cdi-spec.org/documentation/
 - http://cdi-spec.org/
 - Java Platform, Enterprise Edition (Java EE) 8 The Java EE Tutorial: [Using scopes](https://javaee.github.io/tutorial/cdi-basic008.html)
+
+
+- OLDER: Contexts and Dependency Injection for the Java EE platform (CDI 1.2 [JSR 346 Maintenance](https://jcp.org/en/jsr/detail?id=346))
+- OLDER: https://docs.jboss.org/cdi/spec/1.2/cdi-spec-1.2.pdf
+- [WELD-2454](https://issues.jboss.org/browse/WELD-2454): @Stateful @Dependent session bean injected with @Inject into @ViewScoped backing bean does not have @PreDestroy invoked (can't be garbage collected)
+- [JSF request scoped bean keeps recreating new Stateful session beans on every request?](https://stackoverflow.com/questions/8887140/jsf-request-scoped-bean-keeps-recreating-new-stateful-session-beans-on-every-req)
 
 Hoping this helps other Enterprise Java enthusiasts with this subtle and important manner,
 
