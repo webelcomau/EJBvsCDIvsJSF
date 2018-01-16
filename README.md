@@ -1,8 +1,8 @@
 ## Investigation of lifecycle of EJBs under various forms of injection into JSF backing beans of various CDI scopes, with a focus on @ViewScoped beans by navigation type
 
-*Author: Darren Kelly ([Webel IT Australia](https://www.webel.com.au))*. *Thanks to [GreenSoft Pty Ltd](https://www.greensoftaustralia.com) for sponsoring development of this test web app and investigation.*
+*Author: Darren Kelly ([Webel IT Australia](https://www.webel.com.au))*. *Thanks to [GreenSoft Pty Ltd](https://www.greensoftaustralia.com) for sponsoring development of this test web app.*
 
-This mini test **NetBeans IDE** web app is for investigation of the lifecycle of `@Stateless` and `@Stateful`  Enterprise Java session beans under injection using `@EJB` vs CDI `@Inject` into `@Named` JavaServer Faces (JSF) "backing beans" of different CDI-compatible scopes.
+This **NetBeans IDE** mini test web app is for investigation of the lifecycle of `@Stateless` and `@Stateful`  Enterprise Java session beans under injection using `@EJB` vs CDI `@Inject` into `@Named` JavaServer Faces (JSF) "backing beans" of different CDI-compatible scopes.
 
 The EJB session bean lifecycle callbacks `@PostConstruct` and `@PreDestroy` -  and additionally also  `@PostActivate` and `@PrePassivate` for `@Stateful` session beans - are logged for analysis.
 
@@ -39,7 +39,9 @@ Also, from the [JBoss CDI User Guide](https://docs.jboss.org/cdi/learn/userguide
 
 The test web app includes some switches to force invocation of `remove()` on stateful session beans whenever the backing bean into which they were injected has its `@PreDestroy` method invoked (see section below on options). By default these should be OFF so you can see the intended behaviour of the container.
 
-#### **THE WELD IMPLEMENTATION VERSION**
+
+
+#### THE WELD IMPLEMENTATION VERSION**
 
 The WELD CDI implementation version will depend initially on your GlassFish (or Payara install):
 
@@ -47,7 +49,8 @@ The WELD CDI implementation version will depend initially on your GlassFish (or 
 - GlassFish-5 has WELD 3.0.0 (Final) **[CDI 2.0]**
 - Payara41 (Payara 163 Full) has WELD 2.3.5 (Final)
 
-(Unfortunately, upgrading to latest in WELD in GlassFish-4.1.1 is tricky because of recent dependencies.)
+(Unfortunately, upgrading to latest in WELD in GlassFish-4.1.1 is tricky because of recent dependencies, just install GlassFish5 instead within your NetBeans install, and choose it under Project > Run, it's very easy.)
+
 
 
 #### MOJARRA JSF IMPLEMENTATION VERSION
@@ -89,8 +92,8 @@ You will need a tool for diagnosing memory use and references to instances of JS
 - You can use the Profiler within NetBeans IDE.
 
 - **2017-12-05 DO NOT use JVisualVM !** It gives incorrect results. When attached to GlassFish/Payara
-  it gives references still held (even after `@PreDestroy` is called) by a field sessionListeners of type 
-  `com.sun.web.server.WebContainerListener` within `ContainerBase$ContainerBackgroundProcessor`, and they won't GC !  See [this forum posting](https://stackoverflow.com/questions/40569971/jsf-mojarra-vs-omnifaces-viewscoped-predestroy-called-but-bean-cant-be-gar).
+  it gives references still held (even after `@PreDestroy` is called) by a field `sessionListeners` of type 
+  `com.sun.web.server.WebContainerListener` within `ContainerBase$ContainerBackgroundProcessor`, and they won't garbage-collect, corrupting the results !  See also (another time) [this forum posting](https://stackoverflow.com/questions/40569971/jsf-mojarra-vs-omnifaces-viewscoped-predestroy-called-but-bean-cant-be-gar).
 
 
 
@@ -105,7 +108,7 @@ Some callbacks are only invoked automatically when the session expires, which ma
       </session-timeout>
     </session-config>
 - You can set this to a very small number like `1` (means 1 minute) to see what happens when a session ends by natural expiration. 
-- On the test page for @SessionScoped there is also a special button for forcing a JSF session to end.
+- On the test page for a `@SessionScoped` backing bean there is also a special button for forcing a JSF session to end.
 
 
 
@@ -137,6 +140,8 @@ The `javax.faces.STATE_SAVING_METHOD` defaults to 'server'.
 
 #### **HOWTO RUN AND USE THE TEST WEB APP**
 
+**STEP 0:** Download it using the green Clone or download button (top right), select Download  (there is no need to clone it) then unzip it.
+
 
 **STEP 1: Open the project in NetBeans IDE** and check the Project Properties:
 
@@ -144,17 +149,17 @@ The `javax.faces.STATE_SAVING_METHOD` defaults to 'server'.
 
 - Under Run set the server to Glassfish4.1.1 (or Payara41 or GlassFish5 if installed).
 
-The choice of server may also affect the  JSF Mojarra version and WELD CDI version (see above).
+The choice of server may also affect the JSF Mojarra version and WELD CDI version (see above).
 
 The folder `./nbproject/private` is NOT distributed with the test web app, so these settings are local.
 
 
 
-##### **STEP 2: clean and build.**
+##### **STEP 2: Clean and build.**
 
 
 
-##### **STEP 3: run in basic mode (and explore the server log output for different test page cases)**
+##### **STEP 3: Run in basic mode (and explore the server log output for different test page cases)**
 
 The home page gives you links to different backing bean cases (where each backing bean type holds
 references to a nearly identical set of session beans of various scoped injected in various ways):
@@ -164,7 +169,7 @@ references to a nearly identical set of session beans of various scoped injected
 
 
 
-Try the @RequestScoped backing bean case first:
+Try the `@RequestScoped` backing bean case first:
 
 ![RequestScoped test page](img/EJBvsCDIvsJSF-Payara41-01-RequestScoped.png)
 
@@ -544,7 +549,7 @@ Again: be aware of diagnostics in both your profiler and server log window at al
 
 
 
-#### SUMMARY OF TYPICAL RESULTS
+### SUMMARY OF TYPICAL RESULTS
 
 See the `/results` folder for some simple annotated text files that show some results for typical backing bean cases, and for each of the session bean types, under `@Inject` and `@EJB`.
 
