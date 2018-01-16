@@ -155,6 +155,10 @@ The folder `./nbproject/private` is NOT distributed with the test web app, so th
 
 
 
+**STEP: run in basic mode (and explore server log output for different test page case)**
+
+![Home page](./img/EJBvsCDIvsJSF-Payara41-00.png)
+
 **STEP: run in profiling mode:**
 
 Use the NetBeans built-in Profiler, **DO NOT use JVisualVM** !
@@ -448,7 +452,7 @@ in your profiler at each stage.
 
 #### ABOUT THE BACKING BEAN TEST PAGES AND NAVIGATION CASES IN DETAIL
 
-*Although the ultimate aim of this test app is to investigate when and whether injected session beans are released, this is ultimately dictated by the scope of the backing beans into which the session beans are injected, and for scopes such as @ViewScoped, how one navigated away from the test pages (the "view").*
+*Although the aim of this test app is to investigate **when and whether injected session beans are released**, this is ultimately dictated by the scope of the backing beans into which the session beans are injected, and for scopes such as @ViewScoped, how one navigated away from the test pages (the "view").*
 
 Each backing bean test web page has (hopefully) clear instructions.
 
@@ -663,7 +667,7 @@ Note that the `@RequestScoped` `@Stateful` session bean had `@PreDestroy` automa
 
 
 
-**NEXT:** **Case1:** Leave the page with the `h:commandButton` with an action method to navigate to the 'done' page.*(ADVANCE WARNING: with Mojarra-2.3, the GET-related navigation methods don’t unload the `@ViewScoped` beans well, a known issue, see use of OmniFaces `@ViewScoped` below instead):*
+**NEXT:** **Case1:** Leave the page with the `h:commandButton` with the action method to navigate to the 'done' target page:
 
 ```
 Info:   Jsf23ViewBean    [1516009460851]: actionDone
@@ -689,7 +693,7 @@ Note  that the `@Stateful` session bean with no explicit scope (class `StatefulI
 
 
 
-**NEXT:** **Case2:** Stay on the page instead with the `h:commandButton` with an action method with ‘null’ return.
+**NEXT:** **Case2:** Stay on the page instead with the `h:commandButton` with the action method with `null` return.
 (To do this you have to load the view-scoped test page again from the top, and the timestamps will of course be mostly different, except for any session-scoped beans). The sequence then looks like:
 
 ```
@@ -722,11 +726,10 @@ Info:   Jsf23ViewBean    [1516009951544]: actionNull
 
 
 
-**NEXT: Case3:** Much as for GET-related navigation, **browser reload is BROKEN for @ViewScoped under Mojarra-2.3**, the @ViewScoped backing bean is not released for garbage collection, and most of the session beans are also held. RESULTS OMITTED.
+**NEXT: Case3:** Much as for the other navigation cases, except that a new view-scoped backing bean is created . RESULTS OMITTED.
 
 
-
-*Next we test an OmniFaces @ViewScoped backing bean, which does release most resources correctly.*
+*Next we test an OmniFaces @ViewScoped backing bean:
 
 http://localhost:8080/EJBvsCDIvsJSF/faces/test_view_omni.xhtml
 
@@ -763,7 +766,7 @@ Note that the `@RequestScoped` `@Stateful` session bean had `@PreDestroy` automa
 
 
 
-**NEXT: Case1:** Leave page via any of the GET-related navigation method (all work for OmniFaces, which does unload the view-scoped backing bean correctly):
+**NEXT: Case1:** Leave page via any of the indicated navigation methods (all work for OmniFaces, which always unloads the view-scoped backing bean correctly):
 
 ```
 Info:   StatefulViewView [1516010202356]: preDestroy
