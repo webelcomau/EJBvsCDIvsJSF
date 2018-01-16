@@ -1,14 +1,12 @@
 ## Investigation of lifecycle of EJBs under various forms of injection into JSF backing beans of various CDI scopes, with a focus on @ViewScoped beans by navigation type
 
-*Author: Darren Kelly (Webel IT Australia, https://www.webel.com.au)*
+*Author: Darren Kelly ([Webel IT Australia](https://www.webel.com.au))*. *Thanks to [GreenSoft Pty Ltd](https://www.greensoftaustralia.com) for sponsoring development of this test web app and investigation.*
 
-*Thanks also to [GreenSoft Pty Ltd](https://www.greensoftaustralia.com) for partially sponsoring development of this test web app and investigation.*
-
-This mini test **NetBeans IDE** web app is for investigation of the lifecycle of `@Stateless` and `@Stateful` session beans under @EJB and CDI @Inject into @Named JSF "backing beans" of different CDI-compatible scopes.
+This mini test **NetBeans IDE** web app is for investigation of the lifecycle of `@Stateless` and `@Stateful`  Enterprise Java session beans under injection using `@EJB` vs CDI `@Inject` into `@Named` JavaServer Faces (JSF) "backing beans" of different CDI-compatible scopes.
 
 The EJB session bean lifecycle callbacks `@PostConstruct` and `@PreDestroy` -  and additionally also  `@PostActivate` and `@PrePassivate` for `@Stateful` session beans - are logged for analysis.
 
-This mini test web app also investigates when or whether `@PreDestroy` methods are called and whether garbage collection succeeds for various forms of JavaServer Faces (JSF) "backing beans" (`@RequestScoped`,  `@ViewScoped`, and `@SessionScoped`), which concern is inextricably linked with the lifecycle of any session beans used by the backing beans, and how they are injected (via `@EJB` or via CDI `@Inject`).
+This mini test web app also investigates when or whether `@PreDestroy` methods are called and whether garbage collection succeeds for various forms of  backing beans (`@RequestScoped`,  `@ViewScoped`, and `@SessionScoped`), which concern is inextricably linked with the lifecycle of any session beans used by the backing beans, and how they are injected (via `@EJB` or via CDI `@Inject`).
 
 *(See also this older JSF-only test project https://github.com/webelcomau/JSFviewScopedNav, which was spawned and extended here to also include examination of the lifecycle of EJB session beans under @Inject vs @EJB.)*
 
@@ -111,9 +109,10 @@ Some callbacks are only invoked automatically when the session expires, which ma
 
 
 
+
 #### ON USE OF OMNIFACES
 
-This test web app includes also a comparison of CDI-compatible JSF  view scope with the 3rd-party OmniFaces JSF toolkit view scope:
+This test web app includes also a comparison of CDI-compatible JSF view scope with the 3rd-party OmniFaces JSF toolkit view scope:
 
 - A current/recent OmniFaces library is included with the project under `./lib`
 
@@ -139,7 +138,7 @@ The `javax.faces.STATE_SAVING_METHOD` defaults to 'server'.
 #### **HOWTO RUN AND USE THE TEST WEB APP**
 
 
-**STEP: Open the project in NetBeans IDE** and check the Project Properties:
+**STEP 1: Open the project in NetBeans IDE** and check the Project Properties:
 
 - Under Libraries set the Java Platform to JDK1.8 (if available), otherwise JDK1.7.
 
@@ -151,11 +150,11 @@ The folder `./nbproject/private` is NOT distributed with the test web app, so th
 
 
 
-##### **STEP: clean and build.**
+##### **STEP 2: clean and build.**
 
 
 
-##### **STEP: run in basic mode (and explore the server log output for different test page cases)**
+##### **STEP 3: run in basic mode (and explore the server log output for different test page cases)**
 
 The home page gives you links to different backing bean cases (where each backing bean type holds
 references to a nearly identical set of session beans of various scoped injected in various ways):
@@ -170,6 +169,7 @@ Try the @RequestScoped backing bean case first:
 ![RequestScoped test page](img/EJBvsCDIvsJSF-Payara41-01-RequestScoped.png)
 
 
+
 When you navigate away you'll end up at a target page, from which you can continue tests via the links to the test pages or perform actions and/or select options:
 
 ![RequestScoped test page](img/EJBvsCDIvsJSF-Payara41-03-done.png)
@@ -178,9 +178,9 @@ The main exercise is to watch the server logs for lifecycle callback events, we'
 
 
 
-##### **STEP: Run in NetBeans Profiler mode:**
+##### **STEP4: Run in NetBeans Profiler mode:**
 
-Use the NetBeans built-in Profiler, **DO NOT use JVisualVM** !
+Use the built-in NetBeans Profiler, **Please DO NOT use JVisualVM** !
 
 - DO NOT use the usual Run button, use instead Profile (right click context menu on Project node).
 
@@ -190,16 +190,18 @@ This will run the project in profiling mode (and usually restarts the web app se
   to choose Enable Multiple Modes then Telemetry (gives an overview) and Objects.
 - Click the settings gear wheel icon (top right).
   - Choose to **Profile Selected Classes**, then select these classes:
-    - `com.webel.jsf.Jsf23RequestBean`, `com.webel.jsf.Jsf23ViewBean`, `com.webel.jsf.OmniViewBean`
+    - `com.webel.jsf.Jsf23RequestBean` `com.webel.jsf.Jsf23ViewBean` `com.webel.jsf.OmniViewBean` `com.webel.jsf.Jsf23SessionBean`
     - `com.webel.ejb.StatefulEjb` `com.webel.ejb.StatefulInject` `com.webel.ejb.StatefulDepend` `com.webel.ejb.StatefulRequest` `com.webel.ejb.StatefulViewView` `com.webel.ejb.StatefulOmniView` `com.webel.ejb.StatefulSession`
     - `com.webel.ejb.StatelessEjb` `com.webel.ejb.StatelessInject`
   - Instances for them won't be shown in the Profiler until you choose and load a matching test page.
 
 
-- Note how there is also a rubbish bin icon/button for invoking Garbage Collection.
+- Note how there is also a rubbish-bin (trash-can) icon/button for invoking Garbage Collection.
 
 
-*Below there is a sequence of typical profiler screenshots, but to understand them, you'll need to first briefly inspect the different kinds of backing beans and the types of sessions beans that are injected into them.*
+*Below there is a sequence of typical profiler screenshots, but to understand them, you'll need first to briefly inspect the different kinds of backing beans and the types of sessions beans that are injected into them.*
+
+
 
 #### QUICKSTART: Understanding the different EJB session beans
 
@@ -299,7 +301,7 @@ public class StatelessInject extends StatelessCommon {
 
 ----
 
-These are injected into the JSF backing beans thus:
+These are injected into the JSF backing beans thus, shared via class `AbstractBackingBean`:
 
 ```java
 @EJB //! For this test
@@ -331,7 +333,7 @@ private StatelessEjb statelessEjb;
 private StatelessInject statelessInject;
 ```
 
-The `exec()` method of each session bean is also invoked on @PostConstruct of each backing bean.
+The `exec()` method of each session bean is also invoked on `@PostConstruct` of each backing bean.
 
 
 
@@ -437,7 +439,7 @@ public class Jsf23SessionBean extends AbstractViewBean {
 
 ----
 
-Each test page creates (usually) a new backing bean when first loaded. Of interest is what happens to the backing beans **and their referenced session beans** once the page is left (whereby the result depends on the backing bean type and navigation method used).
+Each test page creates (usually) a new backing bean when first loaded. Of interest is what happens to the backing beans **and their referenced session beans** on initial page load, and once the page is left or reloaded (whereby the result depends on the backing bean type and navigation method used).
 
 - Concern1: Is @PreDestroy invoked on the backing bean so there is an opportunity to clean up resources ?
 - Concern2: Can the backing bean itself be garbage collected ?
@@ -467,23 +469,37 @@ Each test page creates (usually) a new backing bean when first loaded. Of intere
 You must be vigilant and watch carefully the number of instances of each bean type
 in your profiler at each stage.
 
+
+
 #### QUICKSTART: A quick tour through the NetBeans Profiler Objects view
 
-After loading the @RequestScoped page, many instances created. The @PreDestroy has been called already on the @RequestScoped backing bean and  @RequestScoped stateful session bean, but they have not yet been garbage collected:
+After loading the `@RequestScoped` test page, 1 backing bean instance (class `Jsf23RequestBean`) and various injected session bean instances have been created. The `@PreDestroy` has already been called on the `@RequestScoped` backing bean and ` @RequestScoped` stateful session bean, but they have not yet been garbage collected. The server output window at the bottom shows the logged lifecycle callback events:
 
 ![Profiler after loading the @ReqestScoped test page](img/EJBvsCDIvsJSF-Payara41-04-profile-RequestScoped.png)
 
-After garbage collecting the @RequestScoped backing bean and  @RequestScoped stateful session bean. The @Dependent beans have also been garbage collected:
+
+
+After a garbage collection action, the `@RequestScoped` backing bean and `@RequestScoped` stateful session bean instance have been removed from the heap. The `@Dependent` beans have also been garbage collected:
 
 ![Profiler after performing a Garbage Collect (partial view only)](img/EJBvsCDIvsJSF-Payara41-05-profile-RequestScoped-collected.png)
 
-After moving away from the test page to the target (done) page. The @ViewScoped session beans have had @PreDestroy invoked, but have not yet been garbage collected:
+
+
+After moving away from the test page to the target (`done.xhtml`) page. The `@ViewScoped` session beans have had `@PreDestroy` invoked (as indicated but the server log), but have not yet been garbage collected:
 
 ![Profiler after navigating away to the target page (change of JSF "view")](img/EJBvsCDIvsJSF-Payara41-06-profile-RequestScoped-navaway.png)
 
-After a 2nd Garbage Collect. The @ViewScoped session beans have now been garbage collected. The @SessionScoped session bean is still there:
+
+
+After a 2nd garbage collection action. The `@ViewScoped` session beans have now been garbage collected:
 
 ![Profiler after performance a 2nd Garbage Collect](img/EJBvsCDIvsJSF-Payara41-07-profile-RequestScoped-collected.png)
+
+The contextual `@SessionScoped` session bean (that was injected with CDI `@Inject`) is still there. And the `@Stateless` session beans are both still there because they have been pooled. 
+
+As expected, the <u>non-contextual</u> `@Stateful` session bean that was injected with `@EJB` is also still there, because no `remove()` was explicitly invoked on it by the application (yet).
+
+
 
 #### ABOUT THE BACKING BEAN TEST PAGES AND NAVIGATION CASES IN MORE DETAIL
 
@@ -543,7 +559,9 @@ Info:   Loading application [EJBvsCDIvsJSF] at [/EJBvsCDIvsJSF]
 Info:   AppOptions       [1516008033790]: postConstruct
 ```
 
-*The first test we'll try is for `@RequestScoped`, which can be accessed from a link on the home page:*
+
+
+#### *The first test we'll try is for a `@RequestScoped` backing bean, which can be accessed from a link on the home page:*
 
 http://localhost:8080/EJBvsCDIvsJSF/faces/test_request.xhtml
 
@@ -666,7 +684,7 @@ Note that the `@PostConstruct` is NOT invoked again on the already-existent expl
 
 
 
-*Next we try the test for the CDi-compatible JSF2.3 @ViewScoped (in Mojarra):*
+#### *Next we try the test for the CDi-compatible JSF2.3 @ViewScoped (in Mojarra):*
 
 http://localhost:8080/EJBvsCDIvsJSF/faces/test_view_jsf23.xhtml
 
@@ -764,7 +782,7 @@ Info:   Jsf23ViewBean    [1516009951544]: actionNull
 **NEXT: Case3:** Much as for the other navigation cases, except that a new view-scoped backing bean is created . RESULTS OMITTED.
 
 
-*Next we test an OmniFaces @ViewScoped backing bean:
+#### *Next we test an OmniFaces @ViewScoped backing bean:*
 
 http://localhost:8080/EJBvsCDIvsJSF/faces/test_view_omni.xhtml
 
@@ -857,7 +875,7 @@ https://issues.jboss.org/browse/WELD-2454
 
 
 
-*Finally, we look at the session-scoped backing bean test:*
+#### *Finally, we look at the session-scoped backing bean test:*
 
 http://localhost:8080/EJBvsCDIvsJSF/faces/test_session.xhtml
 
