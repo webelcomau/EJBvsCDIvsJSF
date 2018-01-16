@@ -151,11 +151,11 @@ The folder `./nbproject/private` is NOT distributed with the test web app, so th
 
 
 
-**STEP: clean and build.**
+##### **STEP: clean and build.**
 
 
 
-**STEP: run in basic mode (and explore the server log output for different test page cases)**
+##### **STEP: run in basic mode (and explore the server log output for different test page cases)**
 
 The home page gives you links to different backing bean cases (where each backing bean type holds
 references to a nearly identical set of session beans of various scoped injected in various ways):
@@ -178,7 +178,7 @@ The main exercise is to watch the server logs for lifecycle callback events, we'
 
 
 
-**STEP: Run in NetBeans Profiler mode:**
+##### **STEP: Run in NetBeans Profiler mode:**
 
 Use the NetBeans built-in Profiler, **DO NOT use JVisualVM** !
 
@@ -199,7 +199,7 @@ This will run the project in profiling mode (and usually restarts the web app se
 - Note how there is also a rubbish bin icon/button for invoking Garbage Collection.
 
 
-
+*Below there is a sequence of typical profiler screenshots, but to understand them, you'll need to first briefly inspect the different kinds of backing beans and the types of sessions beans that are injected into them.*
 
 #### QUICKSTART: Understanding the different EJB session beans
 
@@ -437,7 +437,7 @@ public class Jsf23SessionBean extends AbstractViewBean {
 
 ----
 
-Each test page creates (usually) a new bean when first loaded. Of interest is what happens to referenced beans **and their EJBs** once the page is left (whereby the result depends on the backing bean type and navigation method used).
+Each test page creates (usually) a new backing bean when first loaded. Of interest is what happens to the backing beans **and their referenced session beans** once the page is left (whereby the result depends on the backing bean type and navigation method used).
 
 - Concern1: Is @PreDestroy invoked on the backing bean so there is an opportunity to clean up resources ?
 - Concern2: Can the backing bean itself be garbage collected ?
@@ -467,9 +467,25 @@ Each test page creates (usually) a new bean when first loaded. Of interest is wh
 You must be vigilant and watch carefully the number of instances of each bean type
 in your profiler at each stage.
 
+#### QUICKSTART: A quick tour through the NetBeans Profiler Objects view
 
+After loading the @RequestScoped page, many instances created. The @PreDestroy has been called already on the @RequestScoped backing bean and  @RequestScoped stateful session bean, but they have not yet been garbage collected:
 
-#### ABOUT THE BACKING BEAN TEST PAGES AND NAVIGATION CASES IN DETAIL
+![Profiler after loading the @ReqestScoped test page](img/EJBvsCDIvsJSF-Payara41-04-profile-RequestScoped.png)
+
+After garbage collecting the @RequestScoped backing bean and  @RequestScoped stateful session bean. The @Dependent beans have also been garbage collected:
+
+![Profiler after performing a Garbage Collect (partial view only)](img/EJBvsCDIvsJSF-Payara41-05-profile-RequestScoped-collected.png)
+
+After moving away from the test page to the target (done) page. The @ViewScoped session beans have had @PreDestroy invoked, but have not yet been garbage collected:
+
+![Profiler after navigating away to the target page (change of JSF "view")](img/EJBvsCDIvsJSF-Payara41-06-profile-RequestScoped-navaway.png)
+
+After a 2nd Garbage Collect. The @ViewScoped session beans have now been garbage collected. The @SessionScoped session bean is still there:
+
+![Profiler after performance a 2nd Garbage Collect](img/EJBvsCDIvsJSF-Payara41-07-profile-RequestScoped-collected.png)
+
+#### ABOUT THE BACKING BEAN TEST PAGES AND NAVIGATION CASES IN MORE DETAIL
 
 *Although the aim of this test app is to investigate **when and whether injected session beans are released**, this is ultimately dictated by the scope of the backing beans into which the session beans are injected, and for scopes such as @ViewScoped, how one navigated away from the test pages (the "view").*
 
