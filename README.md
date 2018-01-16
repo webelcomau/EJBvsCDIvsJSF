@@ -647,7 +647,9 @@ Info:   StatefulOmniView [1516009460860]: preDestroy
 
 Note  that the `@Stateful` session bean with no explicit scope (class `StatefulInject`) and the `@Stateful` session bean with explicit `@Dependent` pseudo-scope (class `StatefulDepend`) DID NOT have their `@PreDestroy` invoked by the container, and the Profiler shows they won't garbage collect either ! 
 
-<u>I CONSIDER THIS A BUG IN WELD WITH @ViewScoped (TESTED ON  WELD 2.3.5 (Final) and 3.0.0 (Final))</u>
+<u>I CONSIDER THIS AN ISSUE IN WELD WITH @ViewScoped (TESTED ON  WELD 2.3.5 (Final) and 3.0.0 (Final))</u>
+
+(See ISSUE report: https://issues.jboss.org/browse/WELD-2454)
 
 `@PreDestroy` is also not invoked by the container for the `@Stateful` session bean that was injected with `@EJB` (class` StatefulEjb`). This is completely consistent and expected; It's up to the application to explicitly invoke `remove()` to clean up, as that session bean is not "contextual".
 
@@ -779,7 +781,9 @@ The `@Stateful` session bean that had no explicit scope and was injected using `
 
 BUT note again that the `@Stateful` session bean with no explicit scope (class `StatefulInject`) and the `@Stateful` session bean with explicit `@Dependent` pseudo-scope (class `StatefulDepend`) DID NOT have their `@PreDestroy` invoked by the container, and the Profiler shows they won't garbage collect either ! 
 
-<u>I CONSIDER THIS A BUG IN WELD WITH @ViewScoped (TESTED ON  WELD 2.3.5 (Final) and 3.0.0 (Final))</u>
+<u>I CONSIDER THIS A WELD ISSUE WITH @ViewScoped (TESTED ON  WELD 2.3.5 (Final) and 3.0.0 (Final))</u>
+
+https://issues.jboss.org/browse/WELD-2454
 
 
 
@@ -981,7 +985,7 @@ For `@Stateful` session beans, there is a big difference whether one injects wit
 - If you inject a `@Stateful` session bean with `@EJB` <u>you MUST invoke `remove()` on it at some stage yourself in the application</u> in order for its `@PreDestroy` (if any) to be invoked.
 - If you inject a `@Stateful` session bean with CDI `@Inject` you "should" either declare an explicit scope and understand how that impacts on the lifecycle of the stateful bean, or understand the implications of the default `@Dependent` pseudo-scope.
 
-Unfortunately, at the time of writing, <u>WELD does not seem to handle `@Dependent` `@Stateful` session beans correctly under `@Inject` into `@ViewScoped` backing beans</u>, leading to a memory leak (references that won't garbage collect).
+Unfortunately, at the time of writing, <u>WELD does not seem to handle `@Dependent` `@Stateful` session beans correctly under `@Inject` into `@ViewScoped` backing beans</u>, leading to a memory leak (references that won't garbage collect). Visit my issue report: https://issues.jboss.org/browse/WELD-2454.
 
 Finally, the test case includes and compares both Mojarra `@ViewScoped` and OmniFaces `@ViewScoped` in session beans; these are not "official" scopes mentioned in the CDI 1.2 or [CDI 2.0](http://docs.jboss.org/cdi/spec/2.0/cdi-spec.html) specs or in the [Java EE 8](https://javaee.github.io/tutorial/cdi-basic008.html) tutorial, but they seem to work well in combination with matching `@ViewScoped` JSF backing beans.
 
