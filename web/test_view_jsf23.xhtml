@@ -24,22 +24,18 @@
         
         <p>
             - <h:outputLink value="#{root}faces/done.xhtml">h:outputLink: GET: done</h:outputLink> 
-            : <span style="#{style_not}">#{info_not_gc}</span> <span style="#{style_not}">#{info_not_preDestroy}</span>
         </p>
 
         <p>
             - <h:link value="h:link: GET: done (no redirect)" outcome="done"/>
-            : <span style="#{style_not}">#{info_not_gc}</span> <span style="#{style_not}">#{info_not_preDestroy}</span>
         </p>
         
         <p>
             - <h:link value="h:link: GET: done (with redirect)" outcome="done?faces-redirect=true"/>             
-            : <span style="#{style_not}">#{info_not_gc}</span> <span style="#{style_not}">#{info_not_preDestroy}</span>
         </p>
 
         <p>
             - <a href="#{root}faces/done.xhtml">HTML &lt;A&gt;: GET: done</a> 
-            : <span style="#{style_not}">#{info_not_gc}</span> <span style="#{style_not}">#{info_not_preDestroy}</span>
         </p>
 
         <fieldset><legend>Form</legend>        
@@ -47,12 +43,10 @@
 
                 <p>
                     - <h:commandButton value="h:commandButton: TO 'done' via action method" action="#{jsf23ViewBean.actionDone()}"/>
-                    : <span style="#{style_yes}">#{info_yes_gc}</span> <span style="#{style_yes}">#{info_yes_preDestroy}</span>
                 </p>
                 
                 <p>
                     - <h:commandButton value="h:commandButton: TO 'done' via action String" action="done"/>
-                    : <span style="#{style_yes}">#{info_yes_gc}</span> <span style="#{style_yes}">#{info_yes_preDestroy}</span>
                 </p>
 
                 <hr/>
@@ -65,7 +59,7 @@
         </fieldset>
 
         <p>
-            - <b>Browser page reload:</b> creates a new @ViewScoped bean, previous <span style="#{style_not}">#{info_not_gc}</span> <span style="#{style_not}">#{info_not_preDestroy}</span>
+            - <b>Browser page reload:</b> creates a new @ViewScoped bean.
         </p>
 
     </h:body>
