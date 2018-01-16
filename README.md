@@ -911,7 +911,7 @@ The CLAIMED WELD BUG under `@Inject`  of `@Dependent` `@Stateful` session beans 
 
 
 
-#### ``Special application-wide options for additional cleanup using remove()
+#### Special application-wide options for additional cleanup using remove()
 
 You can choose how the backing beans handle their injected session beans when `@PreDestroy` is called on a backing bean. These options are accessible from the home `index.xhtml` page and the target `done.xhtml` page:
 
@@ -923,9 +923,9 @@ By default these are both initially OFF so you can see the behaviour of the cont
 
 Typically, you would then turn on the 1st option to ensure that any stateful session beans injected with `@EJB` are indeed cleaned up by the application (which you can confirm with the NetBeans Profiler).
 
-Note however, that under CDI 1.2, you are not supposed to explicitly invoke `remove()`:
+Note however, that under CDI 1.2 and [CDI 2.0](http://docs.jboss.org/cdi/spec/2.0/cdi-spec.html#session_bean_ejb_remove_method), you are not allowed to explicitly invoke `remove()` except for `@Dependent`:
 
-> ***3.2.1. EJB remove methods of session beans***
+> **EJB remove methods of session beans**
 >
 > 'If a session bean is a stateful session bean:
 >
@@ -936,7 +936,41 @@ Note however, that under CDI 1.2, you are not supposed to explicitly invoke `rem
 >
 > If the application directly calls an EJB remove method of a contextual instance of a session bean that is a stateful session bean and declares any scope other than `@Dependent`, an `UnsupportedOperationException` is thrown.'
 
-Therefore the 2nd option - for use with `@Inject` - <u>should not usually  be turned ON anyway</u>.
+Therefore the 2nd option - for use with `@Inject` - <u>should not usually be turned ON anyway</u>. If you do, you may find WELD issuing some error messages. Example:
+
+```
+Info:   StatefulEjb      [1516098204329]: postConstruct
+Info:   StatefulInject   [1516098204332]: postConstruct
+Info:   StatefulDepend   [1516098204337]: postConstruct
+Info:   Jsf23RequestBean [1516098204329]: postConstruct
+Info:   StatefulEjb      [1516098204329]: exec
+Info:   StatefulInject   [1516098204332]: exec
+Info:   StatefulDepend   [1516098204337]: exec
+Info:   StatefulRequest  [1516098204353]: postConstruct
+Info:   StatefulRequest  [1516098204353]: exec
+Info:   StatefulViewView [1516098204361]: postConstruct
+Info:   StatefulViewView [1516098204361]: exec
+Info:   StatefulOmniView [1516098204367]: postConstruct
+Info:   StatefulOmniView [1516098204367]: exec
+Info:   StatefulSession  [1516097217914]: exec
+Info:   StatelessEjb     [1516097217916]: exec
+Info:   StatelessEjb     [1516097217916]: pseudoState=6
+Info:   StatelessInject  [1516097217919]: exec
+Info:   StatelessInject  [1516097217919]: pseudoState=6
+Info:   Jsf23RequestBean [1516098204329]: preDestroy
+Info:   Jsf23RequestBean [1516098204329]: SKIP: WILL NOT force remove() on @EJB statefulEjb !
+Info:   Jsf23RequestBean [1516098204329]: WILL force remove() on @Inject statefulInject !
+Info:   StatefulInject   [1516098204332]: remove
+Info:   StatefulInject   [1516098204332]: preDestroy
+Info:   Jsf23RequestBean [1516098204329]: WILL force remove() on @Inject statefulDepend !
+Info:   StatefulDepend   [1516098204337]: remove
+Info:   StatefulDepend   [1516098204337]: preDestroy
+Info:   Jsf23RequestBean [1516098204329]: WILL force remove() on @Inject statefulRequest !
+ERROR:   WELD-000019: Error destroying an instance com.webel.jsf.Jsf23RequestBean@351d194f of Managed Bean [class com.webel.jsf.Jsf23RequestBean] with qualifiers [@Default @Any @Named]
+Info:   StatefulRequest  [1516098204353]: preDestroy
+```
+
+
 
 #### SOME CONCLUSIONS
 

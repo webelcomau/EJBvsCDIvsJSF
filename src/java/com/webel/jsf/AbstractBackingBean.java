@@ -112,11 +112,11 @@ abstract public class AbstractBackingBean extends All {
         // @EJB used for injection, otherwise @PreDestroy only invoked by container on timeout.
         
         if (appOptions.isDoForceRemoveEjb()) {
-            echo("DO force remove() on @EJB statefulEjb !");
+            echo("WILL force remove() on @EJB statefulEjb !");
             statefulEjb.remove(); //! Usually needed because not "contextual"
         }
         else {
-            echo("SKIP: DO NOT force remove() on @EJB statefulEjb !");        
+            echo("SKIP: WILL NOT force remove() on @EJB statefulEjb !");        
         }
 
         // For @RequestScoped, a @Stateful EJB injected with @Inject will have it's @PreDestroy
@@ -127,7 +127,7 @@ abstract public class AbstractBackingBean extends All {
         // otherwise @PreDestroy only invoked by container on timeout.
         
         if (appOptions.isDoForceRemoveInject()) {
-            String $f = "DO force remove() on @Inject %s !";
+            String $f = "WILL force remove() on @Inject %s !";
             
             echo(String.format($f,"statefulInject"));            
             statefulInject.remove();// Not always needed because "contextual"
@@ -135,21 +135,26 @@ abstract public class AbstractBackingBean extends All {
             echo(String.format($f,"statefulDepend"));            
             statefulDepend.remove();// Not always needed because "contextual"
             
+            // http://docs.jboss.org/cdi/spec/2.0/cdi-spec.html#session_bean_ejb_remove_method
+            // 'If the application directly calls an EJB remove method of a contextual instance 
+            // of a session bean that is a stateful session bean and declares any scope other 
+            // than @Dependent, an UnsupportedOperationException is thrown.'
+            
             echo(String.format($f,"statefulRequest"));            
-            statefulRequest.remove();// Not always needed because "contextual"
+            statefulRequest.remove();// Not always needed because "contextual": BREAKS SPEC !
             
             echo(String.format($f,"statefulViewView"));            
-            statefulViewView.remove();// Not always needed because "contextual"
+            statefulViewView.remove();// Not always needed because "contextual": BREAKS SPEC !
             
             echo(String.format($f,"statefulOmniView"));            
-            statefulOmniView.remove();// Not always needed because "contextual"            
+            statefulOmniView.remove();// Not always needed because "contextual": BREAKS SPEC !            
             
             echo(String.format($f,"statefulSession"));            
-            statefulSession.remove();// Not always needed because "contextual"            
+            statefulSession.remove();// Not always needed because "contextual": BREAKS SPEC !           
             
         }
         else {
-            String $f = "SKIP: DO NOT force remove() on @Inject %s !";            
+            String $f = "SKIP: WILL NOT force remove() on @Inject %s !";            
             echo(String.format($f,"statefulInject"));                        
             echo(String.format($f,"statefulDepend"));                        
             echo(String.format($f,"statefulRequest"));                       
