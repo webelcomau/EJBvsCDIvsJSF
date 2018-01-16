@@ -2,15 +2,14 @@ http://localhost:8080/EJBvsCDIvsJSF/faces/test_session.xhtml
 
 Backing bean class: Jsf23SessionBean, Scope class: javax.enterprise.context.SessionScoped
 
-Example results with a fresh run.
-
-Because a session is created, there is output already on app launch,
-as a result of the Jsf23SessionBean backing bean and its injected 
-session beans being created:
+[Example results with a fresh run.]
 
 Info:   Loading application [EJBvsCDIvsJSF] at [/EJBvsCDIvsJSF]
 
 Info:   AppOptions       [1516017012352]: postConstruct
+…
+
+Load the test page:
 
 Info:   StatefulEjb      [1516017014132]: postConstruct
 Info:   StatefulInject   [1516017014139]: postConstruct
@@ -35,14 +34,9 @@ Info:   StatelessInject  [1516017014256]: exec
 Info:   StatelessInject  [1516017014256]: pseudoState=1
 Info:   StatefulRequest  [1516017014202]: preDestroy
 
-Then load the session scoped backing bean test page:
-
-http://localhost:8080/EJBvsCDIvsJSF/faces/test_session.xhtml
-
-There is initially nothing additionally logged !
 
 Try navigating away using one of the GET methods;
-there will also be nothing additionally logged.
+there will be nothing additionally logged.
 
 Access the same session scoped backing bean test page again;
 There is still nothing additionally logged !
@@ -78,7 +72,10 @@ Info:   StatefulDepend   [1516017014145]: preDestroy
 Info:   StatefulOmniView [1516017014237]: preDestroy
 
 Every session bean of every scope that was injected with @Inject gets its @PreDestroy invoked
-automatically. BUT the @Stateful session bean that was injected with @EJB does NOT get its
+automatically, including the session bean with implicit (class StatefulInject) and explicit
+@Dependent scope (class StatefulDepend), noting none had scopes “higher” than @SessionScoped.
+
+BUT the @Stateful session bean that was injected with @EJB does NOT get its
 @PreDestroy invoked ! This is in exact agreement with the specification for non contextual
 session beans: ‘stateful instances must be explicitly destroyed by the application.’
 
@@ -88,7 +85,6 @@ slightly different order w.r.t. to the backing bean into which it was injected.
 
 Again, the use of @ViewScoped on @Stateful session beans here is 
 for illustration and testing, it is not necessarily a recommendation.
-
 
 You can create a new session simply by clicking on the link for the @SessionScoped test page:
 
