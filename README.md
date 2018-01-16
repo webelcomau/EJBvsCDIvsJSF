@@ -157,7 +157,7 @@ The folder `./nbproject/private` is NOT distributed with the test web app, so th
 
 **STEP: run in basic mode (and explore server log output for different test page case)**
 
-![Home page](/img/EJBvsCDIvsJSF-Payara41-00.png)
+![Home page](img/EJBvsCDIvsJSF-Payara41-00.png)
 
 **STEP: run in profiling mode:**
 
