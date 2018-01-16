@@ -155,11 +155,30 @@ The folder `./nbproject/private` is NOT distributed with the test web app, so th
 
 
 
-**STEP: run in basic mode (and explore server log output for different test page case)**
+**STEP: run in basic mode (and explore the server log output for different test page cases)**
+
+The home page gives you links to different backing bean cases (where each backing bean type holds
+references to a nearly identical set of session beans of various scoped injected in various ways):
+
 
 ![Home page](img/EJBvsCDIvsJSF-Payara41-00.png)
 
-**STEP: run in profiling mode:**
+
+
+Try the @RequestScoped backing bean case first:
+
+![RequestScoped test page](img/EJBvsCDIvsJSF-Payara41-01-RequestScoped.png)
+
+
+When you navigate away you'll end up at a target page, from which you can continue tests via the links to the test pages or perform actions and/or select options:
+
+![RequestScoped test page](img/EJBvsCDIvsJSF-Payara41-03-done.png)
+
+The main exercise is to watch the server logs for lifecycle callback events, we'll inspect those in detail below.
+
+
+
+**STEP: Run in NetBeans Profiler mode:**
 
 Use the NetBeans built-in Profiler, **DO NOT use JVisualVM** !
 
