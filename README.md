@@ -340,7 +340,14 @@ private StatelessInject statelessInject;
 
 The `exec()` method of each session bean is also invoked on `@PostConstruct` of each backing bean.
 
+You may have noticed that the types of session bean tested are not (yet) complete w.r.t. the 6 built-in scopes:
 
+* The ` @ApplicationScoped` has been excluded because creation of beans with these scopes on application startup complicates the analysis in the Profiler a bit.
+* `@ConversationScoped` has been excluded because it would require demonstration of `begin()` and `start()`, which can't be easily done for all backing bean cases. 
+* Also, the `@Singleton` pseudo-scope is not yet covered.
+* `@TransactionScoped` was [introduced in JavaEE7](https://docs.oracle.com/javaee/7/api/javax/transaction/TransactionScoped.html); transactions aren't explored in this test app yet.
+* `@FlowScoped` was also [introduced in JavaEE7](https://docs.oracle.com/javaee/7/api/javax/faces/flow/FlowScoped.html); using it for a session bean might make sense within  a `@FlowScoped` backing bean (not demonstrated here yet).
+  ​
 
 #### QUICKSTART: Understanding typical output: CASE: @RequestScoped
 
@@ -443,6 +450,18 @@ public class Jsf23SessionBean extends AbstractViewBean {
 ```
 
 ----
+
+You may have noticed that the range of backing bean scopes tested is not (yet) complete:
+
+- The ` @ApplicationScoped` has been excluded deliberately, because it would cause many injected session beans to be created at application startup, which complicates the analysis during profiling. (There is a an `AppOptions` backing bean with `@ApplicationScoped`, however it does not have any injected session beans.)
+- The `@FlowScoped` has been excluded because it would require inclusion of a flow, which is more complicated than the purpose of the current  test cases, with their focus on the lifetime of injected session beans.
+- The `@Dependent` scope is also not used yet for the backing bean test pages (it would have to be itself injected into something); that might however make a nice test for the future.
+
+The focus of this test app is mostly on `@ViewScoped`. It is ironic that - given that [@ViewScoped](https://docs.oracle.com/javaee/7/api/javax/faces/view/ViewScoped.html) is (with its excellent support for AJAX) perhaps the most-used scope in the JSF community - 'view scope' is only  mentioned once "in passing" in the latest JavaEE8 tutorial version (under [Using Managed Bean Scopes](https://javaee.github.io/tutorial/jsf-configure002.html#GIRCR)) !
+
+> If you are configuring a bean that allows attributes to be associated with the view, you can use the view scope. The attributes persist until the user has navigated to the next view.
+
+---
 
 Each test page creates (usually) a new backing bean when first loaded. Of interest is what happens to the backing beans **and their referenced session beans** on initial page load, and once the page is left or reloaded (whereby the result depends on the backing bean type and navigation method used).
 
