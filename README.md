@@ -1,12 +1,12 @@
 ## Investigation of lifecycle of EJBs under various forms of injection into JSF backing beans of various CDI scopes, with a focus on @ViewScoped beans by navigation type
 
-*Author: Darren Kelly ([Webel IT Australia](https://www.webel.com.au))*. *Thanks to [GreenSoft Pty Ltd](https://www.greensoftaustralia.com) for sponsoring development of this test web app.*
+*Author: Darren Kelly ([Webel IT Australia](https://www.webel.com.au)).* *Thanks to [GreenSoft](https://www.greensoftaustralia.com) for sponsoring development of this test web app.*
 
-This **NetBeans IDE** mini test web app is for investigation of the lifecycle of `@Stateless` and `@Stateful`  Enterprise Java session beans under injection using `@EJB` vs CDI `@Inject` into `@Named` JavaServer Faces (JSF) "backing beans" of different CDI-compatible scopes.
+This **NetBeans IDE** mini test web app is for investigation of the lifecycle of `@Stateless` and `@Stateful`  Enterprise Java session beans under injection using `@EJB` vs CDI `@Inject` into `@Named` JavaServer Faces (JSF) "backing beans" of various CDI-compatible scopes.
 
 The EJB session bean lifecycle callbacks `@PostConstruct` and `@PreDestroy` -  and additionally also  `@PostActivate` and `@PrePassivate` for `@Stateful` session beans - are logged for analysis.
 
-This mini test web app also investigates when or whether `@PreDestroy` methods are called and whether garbage collection succeeds for various forms of  backing beans (`@RequestScoped`,  `@ViewScoped`, and `@SessionScoped`), which concern is inextricably linked with the lifecycle of any session beans used by the backing beans, and how they are injected (via `@EJB` or via CDI `@Inject`).
+This mini test web app also investigates when or whether `@PreDestroy` methods are called and whether garbage collection succeeds for various forms of  backing beans (`@RequestScoped`,  `@ViewScoped`, and `@SessionScoped`), which concern is inextricably linked with the lifecycle of any session beans injected into the backing beans, and how they are injected (via `@EJB` or via CDI `@Inject`).
 
 *(See also this older JSF-only test project https://github.com/webelcomau/JSFviewScopedNav, which was spawned and extended here to also include examination of the lifecycle of EJB session beans under @Inject vs @EJB.)*
 
@@ -23,7 +23,7 @@ You may set your own web application server under `Properties > Run`.
 
 Keep the following from [CDI-2.0 (JSR-365)](http://docs.jboss.org/cdi/spec/2.0/cdi-spec.html#_relationship_to_the_java_ee_platform_specification) in mind at all times (my <u>underlining</u>):
 
-> 'EJB components may be stateful, but are not by nature contextual. References to stateful component instances must be explicitly passed between clients and stateful instances <u>must be explicitly destroyed by the application</u>.
+> 'EJB components may be stateful, but are not by nature contextual. References to stateful component instances must be explicitly passed between clients and <u>stateful instances must be explicitly destroyed by the application</u>.
 >
 > This specification enhances the EJB component model with contextual lifecycle management.
 >
@@ -33,7 +33,7 @@ Amongst other things, this test suite is designed to illustrate exactly what thi
 
 Also, from the [JBoss CDI User Guide](https://docs.jboss.org/cdi/learn/userguide/CDI-user-guide.html#_session_beans):
 
-> 'There’s no reason to explicitly declare the scope of a stateless session bean or singleton session bean. […] On the other hand, a stateful session bean may have any scope.
+> 'There’s no reason to explicitly declare the scope of a stateless session bean or singleton session bean. […] On the other hand, <u>a stateful session bean may have any scope</u>.
 >
 > Stateful session beans may define a remove method, annotated @Remove, that is used by the application to indicate that an instance should be destroyed. However, for a contextual instance of the bean — an instance under the control of CDI — this method may only be called by the application if the bean has scope @Dependent. For beans with other scopes, the application must let the container destroy the bean.'
 
@@ -41,7 +41,7 @@ The test web app includes some switches to force invocation of `remove()` on sta
 
 
 
-#### THE WELD IMPLEMENTATION VERSION**
+#### THE WELD IMPLEMENTATION VERSION
 
 The WELD CDI implementation version will depend initially on your GlassFish (or Payara install):
 
@@ -91,9 +91,9 @@ You will need a tool for diagnosing memory use and references to instances of JS
 
 - You can use the Profiler within NetBeans IDE.
 
-- **2017-12-05 DO NOT use JVisualVM !** It gives incorrect results. When attached to GlassFish/Payara
+- **PLEASE DO NOT use JVisualVM !** It gives incorrect results. When attached to GlassFish/Payara
   it gives references still held (even after `@PreDestroy` is called) by a field `sessionListeners` of type 
-  `com.sun.web.server.WebContainerListener` within `ContainerBase$ContainerBackgroundProcessor`, and they won't garbage-collect, corrupting the results !  See also (another time) [this forum posting](https://stackoverflow.com/questions/40569971/jsf-mojarra-vs-omnifaces-viewscoped-predestroy-called-but-bean-cant-be-gar).
+  `com.sun.web.server.WebContainerListener` within `ContainerBase$ContainerBackgroundProcessor`, and they won't garbage-collect, corrupting the results !  Visit also (another time) [this forum posting](https://stackoverflow.com/questions/40569971/jsf-mojarra-vs-omnifaces-viewscoped-predestroy-called-but-bean-cant-be-gar).
 
 
 
@@ -113,7 +113,7 @@ Some callbacks are only invoked automatically when the session expires, which ma
 
 
 
-#### ON USE OF OMNIFACES
+#### ON USE OF OMNIFACES VIEW SCOPE
 
 This test web app includes also a comparison of CDI-compatible JSF view scope with the 3rd-party OmniFaces JSF toolkit view scope:
 
@@ -306,7 +306,17 @@ public class StatelessInject extends StatelessCommon {
 
 ----
 
-These are injected into the JSF backing beans thus, shared via class `AbstractBackingBean`:
+**IMPORTANT:** The scoping of stateful session beans with JSF-centric `@ViewScoped` for the purposes of this test suite **<u>DOES NOT IMPLY A RECOMMENDED PRACTICE</u>** !
+
+---
+
+##### UML class diagram of session beans:
+
+![UML class diagram of session beans](img/com.webel.ejb.png)
+
+---
+
+These are injected into the JSF backing beans thus, shared via a common base class `AbstractBackingBean`:
 
 ```java
 @EJB //! For this test
@@ -450,6 +460,12 @@ public class Jsf23SessionBean extends AbstractViewBean {
 ```
 
 ----
+
+##### UML class diagram of JSF backing beans:
+
+![UML class diagram of JSF backing beans](img/com.webel.jsf - backing beans.png)
+
+---
 
 You may have noticed that the range of backing bean scopes tested is not (yet) complete:
 

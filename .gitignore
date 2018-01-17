@@ -10,6 +10,7 @@ Thumbs.db
 .DS_Store
 build/
 old/
+uml/
 backup/
 tmp/
 nbproject/private/profiler/
