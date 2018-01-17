@@ -3,9 +3,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-      xmlns:f="http://xmlns.jcp.org/jsf/core">
+      >
     <h:head>
-        <ui:param name="title" value="TEST: Compare held @EJB references by injection type, JSF backing bean scope, implementation, and navigation method"/>
+        <ui:param name="title" value="TEST: Compare held EJB session bean references by scope and injection type, JSF backing bean scope, implementation, and navigation method"/>
         <title>#{title}</title>
     </h:head>
 
@@ -17,14 +17,11 @@
 
         <ui:include src="header.xhtml">
             <ui:param name="author" value="#{author}"/>
-            <!--TODO
-            <ui:param name="beantype" value="various @ViewScoped beans"/>
-            -->
             <ui:param name="showHome" value="false"/>
         </ui:include>
 
         <ui:include src="form_actions_options.xhtml"/>
-        
+
         <ui:include src="links.xhtml"/>
 
     </h:body>

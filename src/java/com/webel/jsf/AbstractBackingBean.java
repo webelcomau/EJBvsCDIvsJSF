@@ -17,7 +17,7 @@ import javax.ejb.EJB;
 import javax.inject.Inject;
 
 /**
- * Base for all view bean examples.
+ * Base for all JSF backing bean test cases.
  *
  * @author darrenkelly
  */
@@ -43,8 +43,7 @@ abstract public class AbstractBackingBean extends All {
     
     
     @EJB
-    private StatefulEjb statefulEjb;
-    
+    private StatefulEjb statefulEjb;// As a test !    
     
     @Inject
     private StatefulInject statefulInject;
@@ -65,7 +64,7 @@ abstract public class AbstractBackingBean extends All {
     private StatefulSession statefulSession;
     
     @EJB
-    private StatelessEjb statelessEjb;
+    private StatelessEjb statelessEjb; // As a test !
     
     @Inject
     private StatelessInject statelessInject;
@@ -77,8 +76,6 @@ abstract public class AbstractBackingBean extends All {
         execEJBs();
     }
 
-    //abstract protected void myPostConstruct();
-    //@Override
     protected void execEJBs() {
         
         statefulEjb.exec();
@@ -119,7 +116,7 @@ abstract public class AbstractBackingBean extends All {
             echo("SKIP: WILL NOT force remove() on @EJB statefulEjb !");        
         }
 
-        // For @RequestScoped, a @Stateful EJB injected with @Inject will have it's @PreDestroy
+        // For @RequestScoped, a @Stateful EJB injected with @Inject will have its @PreDestroy
         // called by the container.
         //
         // But for @ViewScoped (Mojarra or OmniFaces version) @Remove remove() MUST be invoked 
