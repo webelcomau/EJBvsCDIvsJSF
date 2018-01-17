@@ -19,7 +19,7 @@ This **NetBeans IDE 8.2** project may be deployed to the bundled GlassFish 4.1.1
 
 You may set your own web application server under `Properties > Run`.
 
-### Background to @CDI vs @Inject for session beans
+### Background to @EJB vs CDI @Inject for session beans
 
 Keep the following from [CDI-2.0 (JSR-365)](http://docs.jboss.org/cdi/spec/2.0/cdi-spec.html#_relationship_to_the_java_ee_platform_specification) in mind at all times (my <u>underlining</u>):
 
